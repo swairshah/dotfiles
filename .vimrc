@@ -1,25 +1,25 @@
 """""""""""""""""""""""""""""""""""""""""""""
-" Swair Shah <swairshah@gmail.com>
-"
+" Filename : vimrc
+" Maintainer : Swair Shah <swairshah@gmail.com>
 "
 " Lot of stuff borrowed from 
 " kde-devel-vimrc (can be found on techbase.kde.org)
 " http://amix.dk/vim/vimrc.html
 "
-"
-
-"call pathogen#helptags()
-"call pathogen#runtime_append_all_bundles()
-
-"source ~/.vim/bundle/a.vim
-
-syntax enable filetype on
-filetype indent on
-filetype plugin on
+"""""""""""""""""""""""""""""""""""""""""""""
 
 
-"style
+
+set nocompatible "get rid of the Vi compatibility mode
+
+
 colorscheme wombat256
+
+" other view settings
+set t_Co=256
+
+"insert tab char in whitespace-only lines, complete otherwise
+inoremap <Tab> <C-R>=SmartTab()<CR>
 
 " indent related
 set et
@@ -30,8 +30,6 @@ set tabstop=4
 set softtabstop=4
 set smarttab
 
-" other view settings
-set t_Co=256
 set number
 set autoindent
 set smartindent
@@ -39,6 +37,16 @@ set showcmd
 set showmatch
 set ruler
 set tw=0
+
+
+"call pathogen#helptags()
+"call pathogen#runtime_append_all_bundles()
+
+"source ~/.vim/bundle/a.vim
+
+syntax enable filetype on
+filetype indent on
+filetype plugin on
 
 nnoremap / /\v
 vnoremap / /\v
@@ -50,6 +58,15 @@ set smartcase
 set gdefault
 set magic
 
+
+function! SmartTab()
+    let col = col('.') - 1
+    if !col || getline('.')[col-1] !~ '\k'
+        return "\<Tab>"
+    else
+        return "\<C-P>"
+    endif
+endfunction
 
 function! SmartParens( char, ... )
     if ! ( &syntax =~ '^\(c\|cpp\|java\)$' )
