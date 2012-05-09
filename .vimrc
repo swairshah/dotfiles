@@ -13,10 +13,47 @@
 set nocompatible "get rid of the Vi compatibility mode
 
 
-colorscheme wombat256
+" change mapleader from \ to ,
+let mapleader = ","
+
+
+nnoremap <leader>ft Vatzf
+
+
+" : -> ;
+nnoremap ; :
+
+"quickly edit/reload vimrc file
+nmap <silent> <leader>ev :e $MYVIMRC<CR>
+nmap <silent> <leader>sv :so $MYVIMRC<CR>
+
+
+"Pathogen 
+call pathogen#helptags()
+call pathogen#runtime_append_all_bundles()
+
+
+"filetype plugins
+syntax enable filetype on
+filetype indent on
+filetype plugin on
+
+autocmd filetype python set expandtab
+
+"paste mode toggle
+set pastetoggle=<F2>
+
+
+"(temp) disable arrow keys use hjkl"
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
 
 " other view settings
 set t_Co=256
+"colorscheme wombat256
+colorscheme molokai
 
 "insert tab char in whitespace-only lines, complete otherwise
 inoremap <Tab> <C-R>=SmartTab()<CR>
@@ -36,18 +73,14 @@ set smartindent
 set showcmd
 set showmatch
 set ruler
+set cul
 set tw=0
 
 
-"call pathogen#helptags()
-"call pathogen#runtime_append_all_bundles()
 
 "source ~/.vim/bundle/a.vim
 
-syntax enable filetype on
-filetype indent on
-filetype plugin on
-
+"search related
 nnoremap / /\v
 vnoremap / /\v
 set hlsearch
@@ -57,6 +90,12 @@ set ignorecase
 set smartcase
 set gdefault
 set magic
+
+"handle long lines
+set wrap
+set textwidth=79
+set formatoptions=qrn1
+set colorcolumn=85
 
 
 function! SmartTab()
