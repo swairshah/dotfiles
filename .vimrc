@@ -8,6 +8,29 @@
 "
 """""""""""""""""""""""""""""""""""""""""""""
 
+"tab switching
+:nmap <silent> <C-h> :wincmd h<CR>
+:nmap <silent> <C-j> :wincmd j<CR>
+:nmap <silent> <C-k> :wincmd k<CR>
+:nmap <silent> <C-l> :wincmd l<CR>
+
+"nerdtree
+let NERDTreeWinSize = 13
+
+
+"eclim
+let g:acp_behaviorJavaEclimLength = 3
+function MeetsForJavaEclim(context)
+  return g:acp_behaviorJavaEclimLength >= 0 &&
+        \ a:context =~ '\k\.\k\{' . g:acp_behaviorJavaEclimLength . ',}$'
+endfunction
+let g:acp_behavior = {
+    \ 'java': [{
+      \ 'command': "\<c-x>\<c-u>",
+      \ 'completefunc' : 'eclim#java#complete#CodeComplete',
+      \ 'meets'        : 'MeetsForJavaEclim',
+    \ }]
+  \ }
 
 
 set nocompatible "get rid of the Vi compatibility mode
@@ -29,8 +52,8 @@ nmap <silent> <leader>sv :so $MYVIMRC<CR>
 
 
 "Pathogen 
-call pathogen#helptags()
-call pathogen#runtime_append_all_bundles()
+"call pathogen#helptags()
+"call pathogen#runtime_append_all_bundles()
 
 
 "filetype plugins
@@ -56,7 +79,7 @@ set t_Co=256
 colorscheme molokai
 
 "insert tab char in whitespace-only lines, complete otherwise
-inoremap <Tab> <C-R>=SmartTab()<CR>
+"inoremap <Tab> <C-R>=SmartTab()<CR>
 
 " indent related
 set et
@@ -95,7 +118,7 @@ set magic
 set wrap
 set textwidth=79
 set formatoptions=qrn1
-set colorcolumn=85
+"set colorcolumn=85
 
 
 function! SmartTab()
@@ -108,7 +131,7 @@ function! SmartTab()
 endfunction
 
 function! SmartParens( char, ... )
-    if ! ( &syntax =~ '^\(c\|cpp\|java\)$' )
+    if ! ( &syntax =~ '^\(.c\|.cpp\|.java\)$' )
         return a:char
     endif
     let s = strpart( getline( '.' ), 0, col( '.' ) - 1 )
@@ -143,12 +166,12 @@ function! SmartParens( char, ... )
     return a:char . ' '
 endfunction
 
-function! SmartParensOn()
-    inoremap ( <C-R>=SmartParens( '(' )<CR>
-    inoremap [ <C-R>=SmartParens( '[' )<CR>
-    inoremap ] <C-R>=SmartParens( ']', '[' )<CR>
-    inoremap ) <C-R>=SmartParens( ')', '(' )<CR>
-endfunction
+"function! SmartParensOn()
+"    inoremap ( <C-R>=SmartParens( '(' )<CR>
+"    inoremap [ <C-R>=SmartParens( '[' )<CR>
+"    inoremap ] <C-R>=SmartParens( ']', '[' )<CR>
+"    inoremap ) <C-R>=SmartParens( ')', '(' )<CR>
+"endfunction
 
 if !exists("DisableSmartParens")
 " Insert a space after ( or [ and before ] or ) unless preceded by a matching
