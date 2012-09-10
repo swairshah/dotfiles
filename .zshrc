@@ -3,9 +3,39 @@
 # Released into the public domain.
 #
 
+#key-bindings
+bindkey "^[[5~" up-line-or-history
+bindkey "^[[6~" down-line-or-history
+bindkey '^[[A' up-line-or-search
+bindkey '^[[B' down-line-or-search
+bindkey "^[[H" beginning-of-line
+bindkey "^[[1~" beginning-of-line
+bindkey "^[[F"  end-of-line
+bindkey "^[[4~" end-of-line
+#bindkey '^[[A' up-line-or-search
+#bindkey '^[[B' down-line-or-search
+
+
+#jump clone with a function
+function a {
+alias $1=cd\ $PWD
+}
+
+#xterm
+alias 'xterm=xterm -rightbar -bg black -fg grey -geometry 1024x40'
+
+
+#git
+alias 'gp= git push'
+alias 'gl= git pull'
+alias 'glg= git log'
+alias 'gc= git commit -a'
+alias 'gcm= git commit -m'
+alias 'gs= git status'
+alias 'ga= git add'
+
 #vim
 export EXPORT=vim
-
 
 #nodejs
 export NODE_PATH=/usr/lib/node_modules
@@ -179,9 +209,9 @@ zz () {
 
 # Aliases to use this
 # Use e.g. 'command gv' to avoid
-for i in acroread akregator amarok chromium-browser easytag gaim gimp gpdf gv k3b kate kmail konqueror kontact kopete kpdf kwrite okular oobase oocalc ooffice oowriter opera pan thunderbird; do
-    alias "$i=z $i"
-done
+#for i in acroread akregator amarok chromium-browser easytag gaim gimp gpdf gv k3b kate kmail konqueror kontact kopete kpdf kwrite okular oobase oocalc ooffice oowriter opera pan thunderbird; do
+#    alias "$i=z $i"
+#done
 
 # Quick find
 f() {
@@ -437,3 +467,11 @@ alias gc='git checkout'
 #map Esc to Caps Lock key
 xmodmap -e "clear lock"
 xmodmap -e "keycode 0x42 = Escape"
+
+#tmux 
+alias tmux='tmux -2'
+
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+
