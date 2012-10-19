@@ -2,6 +2,15 @@
 #
 # Released into the public domain.
 #
+#
+
+#fix '^R' bck-search when inside of tmux
+bindkey '^R' history-incremental-search-backward
+
+export SHELL=/bin/zsh
+
+#write! 
+alias 'vimw=gvim -u /home/swair/work/write/vimrc' 
 
 #key-bindings
 bindkey "^[[5~" up-line-or-history
@@ -35,7 +44,7 @@ alias 'gs= git status'
 alias 'ga= git add'
 
 #vim
-export EXPORT=vim
+#export EXPORT=vim
 
 #nodejs
 export NODE_PATH=/usr/lib/node_modules
@@ -79,12 +88,13 @@ then
 fi
 
 # Set default editor
-if [[ -x $(which emacs) ]]
-then
-    export EDITOR="emacs"
-    export USE_EDITOR=$EDITOR
-    export VISUAL=$EDITOR
-fi
+#if [[ -x $(which emacs) ]]
+#then
+#    export EDITOR="emacs"
+#    export USE_EDITOR=$EDITOR
+#    export VISUAL=$EDITOR
+#fi
+export EDITOR="gvim"
 
 # Zsh settings for history
 export HISTIGNORE="&:ls:[bf]g:exit:reset:clear:cd:cd ..:cd.."
