@@ -8,6 +8,16 @@
 "
 """""""""""""""""""""""""""""""""""""""""""""
 
+
+function! TwoSpace()
+    setlocal ts=2
+    setlocal sw=2
+endfunction
+au FileType ruby call TwoSpace()
+au FileType coffee call TwoSpace()
+au FileType vim call TwoSpace()
+au BufNewFile,BufRead *.erb call TwoSpace()
+
 "tab switching
 :nmap <silent> <C-h> :wincmd h<CR>
 :nmap <silent> <C-j> :wincmd j<CR>
