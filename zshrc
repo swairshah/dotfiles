@@ -73,7 +73,8 @@ alias 'nepomukcmd=sopranocmd --dbus org.kde.nepomuk.services.nepomukstorage  --m
 [[ -z "$PS1" ]] && return
 
 # Set prompt (white and purple, nothing too fancy)
-PS1=$'%{\e[0;37m%}%B%*%b %{\e[0;40m%}%m:%{\e[0;40m%}%~ %(!.#.>) %{\e[00m%}'
+# PS1=$'%{\e[0;37m%}%B%*%b %{\e[0;40m%}%m:%{\e[0;40m%}%~ %(!.#.>) %{\e[00m%}'
+PS1=$'% %{\e[1;31m%}%m:%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
 
 # Set less options
 if [[ -x $(which less) ]]
