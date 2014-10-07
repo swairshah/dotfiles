@@ -24,9 +24,16 @@ au BufNewFile,BufRead *.erb call TwoSpace()
 :nmap <silent> <C-k> :wincmd k<CR>
 :nmap <silent> <C-l> :wincmd l<CR>
 
-"nerdtree
-let NERDTreeWinSize = 13
+"latex
+filetype plugin indent on
+set grepprg=grep\ -nH\ $*
+let g:tex_flavor = "latex"
 
+
+"nerdtree
+let NERDTreeWinSize = 15
+map <C-n> :NERDTreeToggle<CR>
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 
 "eclim
 let g:acp_behaviorJavaEclimLength = 3
@@ -89,7 +96,7 @@ set t_Co=256
 colorscheme molokai
 
 "insert tab char in whitespace-only lines, complete otherwise
-"inoremap <Tab> <C-R>=SmartTab()<CR>
+inoremap <Tab> <C-R>=SmartTab()<CR>
 
 " indent related
 set et
