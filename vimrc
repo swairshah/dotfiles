@@ -85,10 +85,10 @@ set pastetoggle=<F2>
 
 
 "(temp) disable arrow keys use hjkl"
-map <up> <nop>
-map <down> <nop>
-map <left> <nop>
-map <right> <nop>
+"map <up> <nop>
+"map <down> <nop>
+"map <left> <nop>
+"map <right> <nop>
 
 " other view settings
 set t_Co=256
