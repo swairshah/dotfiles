@@ -8,6 +8,24 @@
 "
 """""""""""""""""""""""""""""""""""""""""""""
 
+" copy to clipboard
+"set clipboard=unnamedplus
+"
+"
+
+" change mapleader from \ to ,
+let mapleader = ","
+
+" tab shortcuts
+map <leader>t :tabnew
+noremap <leader>1 1gt
+noremap <leader>2 2gt
+noremap <leader>3 3gt
+noremap <leader>4 4gt
+noremap <leader>5 5gt
+
+
+set mouse=a
 
 function! TwoSpace()
     setlocal ts=2
@@ -31,7 +49,7 @@ let g:tex_flavor = "latex"
 
 
 "nerdtree
-let NERDTreeWinSize = 15
+let NERDTreeWinSize = 18
 map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 
@@ -53,8 +71,6 @@ let g:acp_behavior = {
 set nocompatible "get rid of the Vi compatibility mode
 
 
-" change mapleader from \ to ,
-let mapleader = ","
 
 
 nnoremap <leader>ft Vatzf
@@ -69,8 +85,8 @@ nmap <silent> <leader>sv :so $MYVIMRC<CR>
 
 
 "Pathogen 
-"call pathogen#helptags()
-"call pathogen#runtime_append_all_bundles()
+call pathogen#helptags()
+call pathogen#infect()
 
 
 "filetype plugins
@@ -85,15 +101,16 @@ set pastetoggle=<F2>
 
 
 "(temp) disable arrow keys use hjkl"
-map <up> <nop>
-map <down> <nop>
-map <left> <nop>
-map <right> <nop>
+"map <up> <nop>
+"map <down> <nop>
+"map <left> <nop>
+"map <right> <nop>
 
 " other view settings
 set t_Co=256
 "colorscheme wombat256
-colorscheme molokai
+"colorscheme molokai
+colorscheme lucius
 
 "insert tab char in whitespace-only lines, complete otherwise
 inoremap <Tab> <C-R>=SmartTab()<CR>
