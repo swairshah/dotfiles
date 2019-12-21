@@ -37,11 +37,16 @@ au FileType vim call TwoSpace()
 au BufNewFile,BufRead *.erb call TwoSpace()
 
 "tab switching
-:nmap <silent> <C-h> :wincmd h<CR>
-:nmap <silent> <C-j> :wincmd j<CR>
-:nmap <silent> <C-k> :wincmd k<CR>
-:nmap <silent> <C-l> :wincmd l<CR>
+":nmap <silent> <C-h> :wincmd h<CR>
+":nmap <silent> <C-j> :wincmd j<CR>
+":nmap <silent> <C-k> :wincmd k<CR>
+":nmap <silent> <C-l> :wincmd l<CR>
 
+" tab swiching ctrl+n and ctrl+m since 
+" crtl+j and k are mapped to tmux pane switching
+nnoremap <C-n> :tabprevious<CR>
+nnoremap <C-m> :tabnext<CR>
+            
 "latex
 filetype plugin indent on
 set grepprg=grep\ -nH\ $*
@@ -49,24 +54,23 @@ let g:tex_flavor = "latex"
 
 
 "nerdtree
-let NERDTreeWinSize = 18
-map <C-n> :NERDTreeToggle<CR>
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-
+"let NERDTreeWinSize = 18
+"map <C-n> :NERDTreeToggle<CR>
+"autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+"
 "eclim
-let g:acp_behaviorJavaEclimLength = 3
-function MeetsForJavaEclim(context)
-  return g:acp_behaviorJavaEclimLength >= 0 &&
-        \ a:context =~ '\k\.\k\{' . g:acp_behaviorJavaEclimLength . ',}$'
-endfunction
-let g:acp_behavior = {
-    \ 'java': [{
-      \ 'command': "\<c-x>\<c-u>",
-      \ 'completefunc' : 'eclim#java#complete#CodeComplete',
-      \ 'meets'        : 'MeetsForJavaEclim',
-    \ }]
-  \ }
-
+"let g:acp_behaviorJavaEclimLength = 3
+"function MeetsForJavaEclim(context)
+"  return g:acp_behaviorJavaEclimLength >= 0 &&
+"        \ a:context =~ '\k\.\k\{' . g:acp_behaviorJavaEclimLength . ',}$'
+"endfunction
+"let g:acp_behavior = {
+"    \ 'java': [{
+"      \ 'command': "\<c-x>\<c-u>",
+"      \ 'completefunc' : 'eclim#java#complete#CodeComplete',
+"      \ 'meets'        : 'MeetsForJavaEclim',
+"    \ }]
+"  \ }
 
 set nocompatible "get rid of the Vi compatibility mode
 
@@ -85,8 +89,8 @@ nmap <silent> <leader>sv :so $MYVIMRC<CR>
 
 
 "Pathogen 
-call pathogen#helptags()
-call pathogen#infect()
+"call pathogen#helptags()
+"call pathogen#infect()
 
 
 "filetype plugins
