@@ -37,15 +37,8 @@ au FileType vim call TwoSpace()
 au BufNewFile,BufRead *.erb call TwoSpace()
 
 "tab switching
-":nmap <silent> <C-h> :wincmd h<CR>
-":nmap <silent> <C-j> :wincmd j<CR>
-":nmap <silent> <C-k> :wincmd k<CR>
-":nmap <silent> <C-l> :wincmd l<CR>
-
-" tab swiching ctrl+n and ctrl+m since 
-" crtl+j and k are mapped to tmux pane switching
-nnoremap <C-n> :tabprevious<CR>
-nnoremap <C-m> :tabnext<CR>
+nnoremap H gT
+nnoremap L gt
             
 "latex
 filetype plugin indent on
