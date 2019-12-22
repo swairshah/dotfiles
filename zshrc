@@ -95,7 +95,7 @@ fi
 #    export USE_EDITOR=$EDITOR
 #    export VISUAL=$EDITOR
 #fi
-export EDITOR="gvim"
+export EDITOR="vim"
 
 # Zsh settings for history
 export HISTIGNORE="&:ls:[bf]g:exit:reset:clear:cd:cd ..:cd.."
@@ -142,7 +142,7 @@ fi
 
 # Short command aliases
 
-alias 'open=xdg-open'
+alias 'ls=ls -G'
 alias 'l=ls'
 
 alias 'la=ls -A'
