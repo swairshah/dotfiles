@@ -37,8 +37,8 @@ au FileType vim call TwoSpace()
 au BufNewFile,BufRead *.erb call TwoSpace()
 
 "tab switching
-nnoremap H gT
-nnoremap L gt
+nnoremap J gT
+nnoremap K gt
             
 "latex
 filetype plugin indent on
