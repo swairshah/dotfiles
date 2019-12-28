@@ -13,6 +13,16 @@
 "
 "
 
+call plug#begin('~/.vim/plugged')
+
+Plug 'https://github.com/kballard/vim-swift.git'
+Plug 'JuliaEditorSupport/julia-vim'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'vim-syntastic/syntastic'
+
+call plug#end()
+
+
 " change mapleader from \ to ,
 let mapleader = ","
 
@@ -106,7 +116,7 @@ set pastetoggle=<F2>
 " other view settings
 set t_Co=256
 "colorscheme wombat256
-"colorscheme molokai
+colorscheme molokai
 colorscheme lucius
 
 "insert tab char in whitespace-only lines, complete otherwise
