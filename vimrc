@@ -238,3 +238,10 @@ inoremap [ <C-R>=SmartParens( '[' )<CR>
 inoremap ] <C-R>=SmartParens( ']', '[' )<CR>
 inoremap ) <C-R>=SmartParens( ')', '(' )<CR>
 endif
+
+" Disable syntastic by defauly, check when Ctrl-w E
+let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': [],'passive_filetypes': [] }
+nnoremap <C-w>E :SyntasticCheck<CR> :SyntasticToggleMode<CR>
+
+au Filetype python source ~/.vim/scripts/pyjlslime.vim
+au Filetype julia source ~/.vim/scripts/pyjlslime.vim
