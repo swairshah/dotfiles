@@ -16,11 +16,26 @@
 call plug#begin('~/.vim/plugged')
 
 Plug 'https://github.com/kballard/vim-swift.git'
-Plug 'JuliaEditorSupport/julia-vim'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'vim-syntastic/syntastic'
 
+Plug 'Olical/vim-scheme', { 'for': 'scheme', 'on': 'SchemeConnect' }
+"Plug 'guns/vim-sexp'
+Plug 'tpope/vim-sexp-mappings-for-regular-people'
+Plug 'metakirby5/codi.vim'
+
+Plug 'JuliaEditorSupport/julia-vim'
+Plug 'jpalardy/vim-slime', { 'for': ['python', 'julia', 'scheme']}
+Plug 'mroavi/vim-julia-cell', { 'for': 'julia' }
+
 call plug#end()
+
+let g:slime_target = 'tmux'
+let g:slime_default_config = {"socket_name": "default", "target_pane": ":.1"}
+let g:slime_dont_ask_default = 1
+let g:slime_paste_file = "$HOME/.slime_paste"
+
+let g:scheme_executable = "mechanics.sh"
 
 
 " change mapleader from \ to ,
