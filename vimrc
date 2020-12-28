@@ -130,8 +130,9 @@ set pastetoggle=<F2>
 
 " other view settings
 set t_Co=256
-"colorscheme wombat256
-colorscheme molokai
+set background=dark
+highlight Normal ctermbg=NONE
+highlight nonText ctermbg=NONE
 colorscheme lucius
 
 "insert tab char in whitespace-only lines, complete otherwise
