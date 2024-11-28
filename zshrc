@@ -476,8 +476,8 @@ alias gs='git status'
 alias gc='git checkout'
 
 #map Esc to Caps Lock key
-xmodmap -e "clear lock"
-xmodmap -e "keycode 0x42 = Escape"
+#xmodmap -e "clear lock"
+#xmodmap -e "keycode 0x42 = Escape"
 
 #tmux 
 alias tmux='tmux -2'
