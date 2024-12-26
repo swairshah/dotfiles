@@ -23,6 +23,8 @@ Plug 'Olical/vim-scheme', { 'for': 'scheme', 'on': 'SchemeConnect' }
 "Plug 'guns/vim-sexp'
 Plug 'tpope/vim-sexp-mappings-for-regular-people'
 Plug 'metakirby5/codi.vim'
+Plug 'AlexvZyl/nordic.nvim', { 'branch': 'main' }
+Plug 'gilgigilgil/anderson.vim'
 
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'jpalardy/vim-slime', { 'for': ['python', 'julia', 'scheme']}
@@ -129,11 +131,12 @@ set pastetoggle=<F2>
 "map <right> <nop>
 
 " other view settings
-set t_Co=256
-set background=dark
+" set t_Co=256
+" set background=dark
 highlight Normal ctermbg=NONE
 highlight nonText ctermbg=NONE
-colorscheme lucius
+"colorscheme lucius
+colorscheme anderson
 
 "insert tab char in whitespace-only lines, complete otherwise
 inoremap <Tab> <C-R>=SmartTab()<CR>
@@ -246,3 +249,6 @@ nnoremap <C-w>E :SyntasticCheck<CR> :SyntasticToggleMode<CR>
 
 au Filetype python source ~/.vim/scripts/pyjlslime.vim
 au Filetype julia source ~/.vim/scripts/pyjlslime.vim
+
+autocmd BufRead,BufNewFile *.jl :set filetype=julia
+

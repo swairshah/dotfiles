@@ -37,6 +37,7 @@ alias 'xterm=xterm -rightbar -bg black -fg grey -geometry 1024x40'
 #git
 alias 'gp= git push'
 alias 'gl= git pull'
+alias 'glb= git pull --rebase'
 alias 'glg= git log'
 alias 'gc= git commit -a'
 alias 'gcm= git commit -m'
@@ -74,7 +75,8 @@ alias 'nepomukcmd=sopranocmd --dbus org.kde.nepomuk.services.nepomukstorage  --m
 
 # Set prompt (white and purple, nothing too fancy)
 # PS1=$'%{\e[0;37m%}%B%*%b %{\e[0;40m%}%m:%{\e[0;40m%}%~ %(!.#.>) %{\e[00m%}'
-PS1=$'% %{\e[1;31m%}%m:%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
+#PS1=$'% %{\e[1;31m%}%m:%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
+PS1=$'% %{\e[1;31m%}macbook-work%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
 
 # Set less options
 if [[ -x $(which less) ]]
