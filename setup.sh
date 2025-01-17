@@ -1,6 +1,7 @@
 cd ..
 ln -s dotfiles/vimrc .vimrc
 ln -s dotfiles/zshrc .zshrc
+ln -s dotfiles/ghostty.conf .ghostty.conf
 mkdir ~/.vim
 mkdir ~/.vim/colors
 mkdir ~/.vim/scripts
