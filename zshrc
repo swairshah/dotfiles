@@ -2,7 +2,28 @@
 #
 # Released into the public domain.
 #
+#export PATH=/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.6.xctoolchain/usr/bin:${PATH}
+
+npm set prefix ~/.npm
+PATH="$HOME/.npm/bin:$PATH"
+PATH="./node_modules/.bin:$PATH"
+
+export CPATH=`xcrun --show-sdk-path`/usr/include#
 #
+#export PATH=/Library/Developer/Toolchains/swift-latest/usr/bin:${PATH}
+
+
+alias julia="/Applications/Julia-1.5.app/Contents/Resources/julia/bin/julia"
+
+# conda
+export PATH=$PATH:$HOME/miniconda3/bin
+
+# golang
+export PATH=$PATH:/usr/local/go/bin
+
+exit_zsh() { exit }
+zle -N exit_zsh
+bindkey '^D' exit_zsh
 
 #fix '^R' bck-search when inside of tmux
 bindkey '^R' history-incremental-search-backward
@@ -467,9 +488,9 @@ then
     . $HOME/.zshrc-$HOST
 fi
 
-if [ -f $HOME/.zshrc-$(hostname -d) ]
+if [ -f $HOME/.zshrc-$(hostname) ]
 then
-    . $HOME/.zshrc-$(hostname -d)
+    . $HOME/.zshrc-$(hostname)
 fi
 
 #git stuff
@@ -487,4 +508,31 @@ alias tmux='tmux -2'
 PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/swairshah/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/swairshah/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/swairshah/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/swairshah/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+# ls colors
+export LSCOLORS="exfxcxdxBxegecabagacad"
+
+alias enhance='function ne() { docker run --rm -v "$(pwd)/`dirname ${@:$#}`":/ne/input -it alexjc/neural-enhance ${@:1:$#-1} "input/`basename ${@:$#}`"; }; ne'
+
+
+#### FIG ENV VARIABLES ####
+[ -s ~/.fig/fig.sh ] && source ~/.fig/fig.sh
+#### END FIG ENV VARIABLES ####
+
 

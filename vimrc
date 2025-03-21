@@ -16,6 +16,7 @@
 call plug#begin('~/.vim/plugged')
 
 Plug 'https://github.com/kballard/vim-swift.git'
+Plug 'https://github.com/kovisoft/slimv.git'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'vim-syntastic/syntastic'
 
@@ -29,6 +30,16 @@ Plug 'gilgigilgil/anderson.vim'
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'jpalardy/vim-slime', { 'for': ['python', 'julia', 'scheme']}
 Plug 'mroavi/vim-julia-cell', { 'for': 'julia' }
+
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'guns/vim-sexp'
+Plug 'tpope/vim-sexp-mappings-for-regular-people'
+
+ Plug 'neoclide/coc.nvim', {'branch': 'relase'}
+
+" Colour parenthesis based on their nesting level.
+Plug 'HiPhish/guile.vim'
 
 call plug#end()
 
@@ -252,3 +263,13 @@ au Filetype julia source ~/.vim/scripts/pyjlslime.vim
 
 autocmd BufRead,BufNewFile *.jl :set filetype=julia
 
+"let g:slimv_swank_cmd = '!osascript -e \"! tmux new-window -d -n REPL-SBCL \"sbcl --load ~/.vim/plugged/slimv/slime/start-swank.lisp"'
+"let g:lisp_rainbow=1
+
+"Guile stuff
+autocmd BufRead,BufNewFile *.scm set ft=scheme.guile
+
+let g:rainbow_active = 0
+"autocmd BufRead,BufNewFile *.scm :RainbowToggleOn
+"let g:slime_target = "vimterminal"
+"command GuileTerminal rightbelow vertical terminal guile
