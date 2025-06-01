@@ -1,25 +1,24 @@
 # Last updated 2011-03-09
-#
 # Released into the public domain.
 #
 #export PATH=/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.6.xctoolchain/usr/bin:${PATH}
 
-npm set prefix ~/.npm
-PATH="$HOME/.npm/bin:$PATH"
-PATH="./node_modules/.bin:$PATH"
+#npm set prefix ~/.npm
+#PATH="$HOME/.npm/bin:$PATH"
+#PATH="./node_modules/.bin:$PATH"
 
 export CPATH=`xcrun --show-sdk-path`/usr/include#
 #
 #export PATH=/Library/Developer/Toolchains/swift-latest/usr/bin:${PATH}
 
 
-alias julia="/Applications/Julia-1.5.app/Contents/Resources/julia/bin/julia"
+# alias julia="/Applications/Julia-1.5.app/Contents/Resources/julia/bin/julia"
 
-# conda
-export PATH=$PATH:$HOME/miniconda3/bin
+
+export PATH=$PATH:/opt/homebrew/bin/
 
 # golang
-export PATH=$PATH:/usr/local/go/bin
+export PATH="$PATH:/Users/swair/go/bin"
 
 exit_zsh() { exit }
 zle -N exit_zsh
@@ -73,7 +72,7 @@ export NODE_PATH=/usr/lib/node_modules
 
 
 #python
-alias 'py=python2'
+alias 'py=python'
 
 #rails
 alias 'netcat=nc'
@@ -97,7 +96,7 @@ alias 'nepomukcmd=sopranocmd --dbus org.kde.nepomuk.services.nepomukstorage  --m
 # Set prompt (white and purple, nothing too fancy)
 # PS1=$'%{\e[0;37m%}%B%*%b %{\e[0;40m%}%m:%{\e[0;40m%}%~ %(!.#.>) %{\e[00m%}'
 #PS1=$'% %{\e[1;31m%}%m:%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
-PS1=$'% %{\e[1;31m%}macbook-work%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
+PS1=$'% %{\e[1;31m%}macbook %{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
 
 # Set less options
 if [[ -x $(which less) ]]
@@ -530,9 +529,45 @@ export LSCOLORS="exfxcxdxBxegecabagacad"
 
 alias enhance='function ne() { docker run --rm -v "$(pwd)/`dirname ${@:$#}`":/ne/input -it alexjc/neural-enhance ${@:1:$#-1} "input/`basename ${@:$#}`"; }; ne'
 
+#alias python="/opt/homebrew/bin/python3"
+#alias pip="/opt/homebrew/bin/pip3"
+export PATH=/opt/homebrew/bin/:$PATH
 
 #### FIG ENV VARIABLES ####
 [ -s ~/.fig/fig.sh ] && source ~/.fig/fig.sh
 #### END FIG ENV VARIABLES ####
+
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+. "$HOME/.local/bin/env"
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+path=('/Users/swair/.juliaup/bin' $path)
+export PATH
+
+alias "vim=nvim"
+
+# <<< juliaup initialize <<<
+#
+
+export JAVA_HOME=/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
+
+source ~/.env
+fortune
+
+
+# bun completions
+[ -s "/Users/swair/.bun/_bun" ] && source "/Users/swair/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 
 
