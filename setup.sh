@@ -12,3 +12,6 @@ cp dotfiles/molokai.vim ~/.vim/colors
 mkdir ~/.vim/autolog
 
 wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim -P ~/.vim/autoload
+
+mv $HOME/Library/Application\ Support/com.mitchellh.ghostty/config $HOME/Library/Application\ Support/com.mitchellh.ghostty/_config
+ln -s dotfiles/ghostty.conf $HOME/Library/Application\ Support/com.mitchellh.ghostty/config
