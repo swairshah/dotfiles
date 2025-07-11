@@ -1,0 +1,165 @@
+alias teleport='ssh -N -L 1818:ip-10-0-23-209.ec2.internal:1210 3.214.127.67'
+
+declare -A account_ids=(
+["intent-alpha"]=""
+["intent-beta"]=""
+)
+
+declare -A machine_keys=(
+["p5"]="zl-p5-us-west-2.pem"
+["p6"]="zl-p5-ohio.pem"
+["p7"]="zl-p5-ohio.pem"
+["infer1"]="swair-test.pem"
+["infer2"]="swair-test.pem"
+["infer3"]="swair-test.pem"
+)
+
+
+declare -A machine_ips=(
+["p1"]="3.138.116.80"
+["p5"]="35.87.49.33"
+["p6"]="3.147.70.239"
+["p7"]="18.222.18.41"
+["infer1"]="3.88.221.156"
+["infer2"]="54.197.1.109"
+["infer3"]="54.82.98.5"
+)
+
+function machines {
+    for k in "${(@k)machine_ips}"; do 
+        printf "%s -> %s : %s \n" "${k}" "$machine_ips[$k]" "$machine_keys[$k]";
+    done
+}
+
+function accounts {
+    for k in "${(@k)account_ids}"; do 
+        printf "%s -> %s \n" "${k}" "$account_ids[$k]";
+    done
+}
+
+function account-url {
+    printf "https://conduit.security.a2z.com/accounts/aws/%s/attributes" "$account_ids[$1]"
+}
+
+function auth {
+    printf "Running ada for %s\n" "$account_ids[$1]"
+    ada credentials update --account=${account_ids[$1]} --provider=conduit --role=IibsAdminAccess-DO-NOT-DELETE --once
+}
+
+#function endpoints
+
+function vscode_configs {
+    for k in "${(@k)machine_ips}"; do 
+        printf "Host %s\n\tHostName %s\n\tUser shahswai\n\tIdentityFile %s\n" "${k}" "$machine_ips[$k]" "$machine_keys[$k]"
+	done
+
+#Host dl6
+#	HostName 3.21.185.167
+#    User shahswai
+#	IdentityFile ~/.ssh/keys/ohio-key.pem
+#
+}
+
+#function csync {
+#    echo $2
+#    if [ -z "${machine_keys[$1]}" ]
+#    then
+#        rsync -avL --progress -e "ssh" ./$2 shahswai@${machine_ips[$1]}:./
+#    else
+#        rsync -avL --progress -e "ssh -i ~/.ssh/keys/${machine_keys[$1]}" ./$2 shahswai@${machine_ips[$1]}:./
+#    fi
+#}
+
+function csync {
+    local exclude_dirs=()
+    local OPTIND opt
+    
+    while getopts "e:" opt; do
+        case $opt in
+            e) # Multiple -e flags can be used to exclude multiple directories
+                exclude_dirs+=("--exclude=$OPTARG")
+                ;;
+            \?)
+                echo "Invalid option: -$OPTARG" >&2
+                return 1
+                ;;
+        esac
+    done
+    
+    # Shift past the options to get the positional parameters
+    shift $((OPTIND-1))
+    
+    # Check if required arguments are provided
+    if [ -z "$1" ] || [ -z "$2" ]; then
+        echo "Usage: csync [-e exclude_dir] machine_name directory_name" >&2
+        return 1
+    fi
+    
+    if [ -z "${machine_keys[$1]}" ]; then
+        rsync -avL --progress ${exclude_dirs[@]} -e "ssh" "./$2" "shahswai@${machine_ips[$1]}:./"
+    else
+        rsync -avL --progress ${exclude_dirs[@]} -e "ssh -i ~/.ssh/keys/${machine_keys[$1]}" "./$2" "shahswai@${machine_ips[$1]}:./"
+    fi
+}
+
+function goget {
+    if [ -z "${machine_keys[$1]}" ]
+    then
+        if scp -rp shahswai@${machine_ips[$1]}:$2 ./ >&/dev/null ; then echo "transfer OK" ; else echo "transfer failed" ; fi
+    else
+        if scp -rp -i ~/.ssh/keys/${machine_keys[$1]} shahswai@${machine_ips[$1]}:$2 ./ >&/dev/null ; then echo "transfer OK" ; else echo "transfer failed" ; fi
+    fi
+}
+
+function goto {
+    if [ -z "${machine_keys[$1]}" ]
+    then
+        ssh shahswai@${machine_ips[$1]} 
+    else
+        ssh -i ~/.ssh/keys/${machine_keys[$1]} shahswai@${machine_ips[$1]} 
+    fi
+}
+
+function gorun {
+    if [ -z "${machine_keys[$1]}" ]
+    then
+        ssh shahswai@${machine_ips[$1]} 
+    else
+        ssh -i ~/.ssh/keys/${machine_keys[$1]} shahswai@${machine_ips[$1]} $2
+    fi
+}
+
+function testing {
+    if [ -z "${machine_keys[$1]}" ]
+    then
+        echo "$1 is empty"
+    else
+      echo "$1 is NOT empty"
+    fi
+}
+
+function tunnel {
+    if [ -z "${machine_keys[$1]}" ]
+    then
+        ssh -N -f -L localhost:$2\:localhost:$3 shahswai@${machine_ips[$1]}
+    else
+        ssh -i ~/.ssh/keys/${machine_keys[$1]} -N -f -L localhost:$2\:localhost:$3 shahswai@${machine_ips[$1]}
+    fi
+}
+
+function quota-type {
+	aws service-quotas list-service-quotas --service-code sagemaker --output text | grep endpoint | grep "$1"
+}
+
+function check-quota {
+    aws service-quotas get-service-quota --service-code sagemaker --quota-code "$1" --output json
+}
+
+function get-logs {
+	aws logs filter-log-events --log-group-name /aws/sagemaker/Endpoints/"$1" --output text
+}
+
+function opus {
+  response=$(mcurl 'https://api.chat.com.amazon.dev' --data-raw '{"prompt":"'"$1"'","chatHistory":[]}' 2>/dev/null | jq -r .completion | glow )
+  echo $response
+}
