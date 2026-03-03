@@ -1,0 +1,47 @@
+# Claude Code Dark Theme
+# Based on the dark green terminal appearance
+
+# Background and foreground
+background = #0d3b2e
+foreground = #c5e8d8
+
+# Cursor
+cursor-color = #8fbc8f
+cursor-style = block
+
+# Selection
+selection-background = #1a5c47
+selection-foreground = #e0f5ec
+
+# ANSI Colors (0-7: normal, 8-15: bright)
+# Black
+palette = 0=#1a3d30
+palette = 8=#2d5a47
+
+# Red
+palette = 1=#ff6b6b
+palette = 9=#ff8a8a
+
+# Green (prominent in the UI)
+palette = 2=#5fb878
+palette = 10=#7fd89c
+
+# Yellow/Orange (used for labels like "Read", "TODOs")
+palette = 3=#f4bd4e
+palette = 11=#ffd06f
+
+# Blue (used for subagent headers)
+palette = 4=#4a9eff
+palette = 12=#6fb3ff
+
+# Magenta/Purple (used for batch indicators)
+palette = 5=#bd93f9
+palette = 13=#d4b3ff
+
+# Cyan (used for various UI elements)
+palette = 6=#4dd0e1
+palette = 14=#6fdce8
+
+# White
+palette = 7=#c5e8d8
+palette = 15=#e0f5ec

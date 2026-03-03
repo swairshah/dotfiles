@@ -1,0 +1,40 @@
+shell-integration = zsh
+# window-save-state = never
+window-padding-x = 10
+window-padding-y = 10
+bold-is-bright = false
+
+#selection-background = #2a4380
+#selection-foreground = #bbbbbb
+
+cursor-color = #bbbbbb
+cursor-style = block
+adjust-cursor-thickness = 3
+minimum-contrast = 0
+
+
+#theme = dark:dark.theme,light:green.theme
+#theme = green.theme
+theme = dark:dark.theme,light:light.theme
+font-size = 17
+font-family = "IosevkaTerm Nerd Font Mono"
+font-family-bold = IosevkaTerm Nerd Font Mono
+font-family-italic = IosevkaTerm Nerd Font Mono
+font-family-bold-italic = IosevkaTerm Nerd Font Mono
+mouse-hide-while-typing = true
+macos-titlebar-style = hidden
+
+#keybind = global:ctrl+space=toggle_quick_terminal
+keybind = global:ctrl+space=toggle_quick_terminal
+quick-terminal-screen = mouse
+quick-terminal-animation-duration = 0
+quick-terminal-position = top
+quick-terminal-size = 50%,80%
+#keybind = global:cmd+I=prompt_surface_title
+#keybind = global:cmd+I=change_prompt_title
+
+background-opacity = 0.98
+background-blur-radius = 50
+
+macos-titlebar-style = tabs
+keybind = shift+enter=text:\x1b\r

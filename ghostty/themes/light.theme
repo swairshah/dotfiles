@@ -1,0 +1,45 @@
+# Light theme inspired by warm cream aesthetic
+# Background: warm cream, Foreground: dark gray, Accent: rust orange
+
+background = #f5f1eb
+foreground = #3a3a3a
+cursor-color = #d4662a
+cursor-text = #f5f1eb
+selection-background = #e0d8cc
+selection-foreground = #3a3a3a
+
+# Palette colors (0-7: normal, 8-15: bright)
+# 0: black
+palette = 0=#3a3a3a
+# 1: red
+palette = 1=#c75e1d
+# 2: green
+palette = 2=#5a8a4a
+# 3: yellow
+palette = 3=#b5890a
+# 4: blue
+palette = 4=#4a6fa5
+# 5: magenta
+palette = 5=#8a5a7a
+# 6: cyan
+palette = 6=#4a8a8a
+# 7: white
+palette = 7=#b8b4aa
+
+# Bright colors
+# 8: bright black (gray)
+palette = 8=#8a8a8a
+# 9: bright red (orange)
+palette = 9=#d4662a
+# 10: bright green
+palette = 10=#6a9a5a
+# 11: bright yellow
+palette = 11=#c9a020
+# 12: bright blue
+palette = 12=#5a80b5
+# 13: bright magenta
+palette = 13=#9a6a8a
+# 14: bright cyan
+palette = 14=#5a9a9a
+# 15: bright white
+palette = 15=#b8b4aa

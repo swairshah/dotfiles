@@ -1,7 +1,10 @@
 cd ..
 ln -s dotfiles/vimrc .vimrc
 ln -s dotfiles/zshrc .zshrc
-ln -s dotfiles/ghostty.conf .ghostty.conf
+# Ghostty terminal config
+mkdir -p ~/.config/ghostty/themes
+ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
+ln -sf ~/dotfiles/ghostty/themes/* ~/.config/ghostty/themes/
 mkdir ~/.vim
 mkdir ~/.vim/colors
 mkdir ~/.vim/scripts
@@ -13,5 +16,3 @@ mkdir ~/.vim/autolog
 
 wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim -P ~/.vim/autoload
 
-mv $HOME/Library/Application\ Support/com.mitchellh.ghostty/config $HOME/Library/Application\ Support/com.mitchellh.ghostty/_config
-ln -s dotfiles/ghostty.conf $HOME/Library/Application\ Support/com.mitchellh.ghostty/config
