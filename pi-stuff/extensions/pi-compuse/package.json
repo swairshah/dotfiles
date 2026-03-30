@@ -1,0 +1,13 @@
+{
+  "name": "pi-compuse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pi extension for GUI computer-use actions on macOS",
+  "type": "module",
+  "pi": {
+    "extensions": ["./src/index.ts"]
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.48"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "pi-collective",
+  "version": "0.1.0",
+  "description": "Share coding trajectories for open-source model distillation. All for one, one for all.",
+  "type": "module",
+  "main": "src/index.ts",
+  "pi": {
+    "extensions": ["./src/index.ts"]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pi",
+    "extension",
+    "distillation",
+    "open-source",
+    "trajectory",
+    "training-data"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
