@@ -22,6 +22,11 @@ link_force() {
 link_force "$DOTFILES_DIR/vimrc" "$HOME/.vimrc"
 link_force "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
 
+# tmux config (Linux only)
+if [ "$(uname -s)" = "Linux" ]; then
+  link_force "$DOTFILES_DIR/tmux.conf" "$HOME/.tmux.conf"
+fi
+
 # Ghostty terminal config
 mkdir -p "$HOME/.config/ghostty/themes"
 link_force "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
