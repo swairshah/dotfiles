@@ -1,0 +1,47 @@
+onboarding = false
+[ui]
+agent_panel_sort = "priority"
+prompt_new_tab_name = false
+
+[ui.sound]
+enabled = true
+
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "agent", bold = true, dim = false }],
+  [{ token = "terminal_title_stripped", dim = false }],
+  [{ token = "workspace", bold = true, dim = false }, { token = "tab", dim = false }],
+]
+
+[ui.sidebar.agents.rows_by_agent]
+pi = [
+  ["state_icon", { token = "agent", bold = true, dim = false }, { token = "$model", dim = false }],
+  [{ token = "$summary", dim = false }],
+  [{ token = "$directory", fg = "#3B82F6", bold = true, dim = false }, { token = "tab", dim = false }],
+]
+
+[theme]
+name = "one-dark"
+auto_switch = true
+dark_name = "one-dark"
+light_name = "one-light"
+
+[keys]
+prefix="ctrl+s"
+goto = "prefix+g"
+new_tab = "prefix+c"
+next_tab = ["ctrl+k", "prefix+n"]
+previous_tab = ["ctrl+j","prefix+p"]
+focus_pane_left = "prefix+h"
+next_workspace = ["ctrl+]", "ctrl+shift+]"]
+previous_workspace = ["ctrl+[", "ctrl+shift+["]
+previous_agent = "ctrl+shift+k"
+next_agent = "ctrl+shift+j"
+#navigate_workspace_down = "ctrl+n"
+#navigate_workspace_up = "ctrl+p"
+split_horizontal = "prefix+minus"
+new_workspace = "prefix+shift+n"
+
+
+[experimental]
+kitty_graphics = true
