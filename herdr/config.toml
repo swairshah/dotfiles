@@ -26,6 +26,9 @@ auto_switch = true
 dark_name = "one-dark"
 light_name = "one-light"
 
+[theme.custom]
+surface_dim = "#40506A"
+
 [keys]
 prefix="ctrl+s"
 goto = "prefix+g"
