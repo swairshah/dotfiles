@@ -17,7 +17,7 @@ rows = [
 pi = [
   ["state_icon", { token = "agent", bold = true, dim = false }, { token = "$model", dim = false }],
   [{ token = "$summary", dim = false }],
-  [{ token = "$directory", fg = "#3B82F6", bold = true, dim = false }, { token = "tab", dim = false }],
+  [{ token = "$directory", fg = "#60A5FA", bold = true, dim = false }, { token = "tab", dim = false }],
 ]
 
 [theme]
@@ -27,19 +27,21 @@ dark_name = "one-dark"
 light_name = "one-light"
 
 [theme.custom]
-surface_dim = "#40506A"
+surface_dim = "#587590"
+mauve = "#F28B82"
+overlay0 = "#ABB2BF"   # agent name/model/summary text, matches the spaces rows
 
 [keys]
 prefix="ctrl+s"
 goto = "prefix+g"
 new_tab = "prefix+c"
-next_tab = ["ctrl+shift+k", "prefix+n"]
-previous_tab = ["ctrl+shift+j", "prefix+p"]
+next_tab = ["ctrl+k", "prefix+n"]
+previous_tab = ["ctrl+j", "prefix+p"]
 focus_pane_left = "prefix+h"
-next_workspace = ["ctrl+]", "ctrl+shift+]"]
-previous_workspace = ["ctrl+[", "ctrl+shift+["]
-previous_agent = "ctrl+k"
-next_agent = "ctrl+j"
+next_workspace = ["ctrl+]", "ctrl+shift+j"]
+previous_workspace = ["ctrl+[", "ctrl+shift+k"]
+previous_agent = "ctrl+shift+["
+next_agent = "ctrl+shift+]"
 #navigate_workspace_down = "ctrl+n"
 #navigate_workspace_up = "ctrl+p"
 split_horizontal = "prefix+minus"
