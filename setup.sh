@@ -25,6 +25,14 @@ link_force "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
 # Herdr config
 link_force "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
 
+# Herdr pi integration: required for agent detection and the $model/$summary/
+# $directory sidebar tokens reported by pi-stuff/extensions/herdr-*.ts
+if command -v herdr >/dev/null 2>&1; then
+  herdr integration install pi || echo "warning: herdr integration install pi failed"
+else
+  echo "warning: herdr not found; skipping herdr integration install pi"
+fi
+
 # Ghostty terminal config
 mkdir -p "$HOME/.config/ghostty/themes"
 link_force "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
