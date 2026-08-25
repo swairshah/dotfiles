@@ -1,0 +1,253 @@
+/*
+ * Ultramarine — vivid cobalt-blue theme for bb
+ *
+ * Inspired by the classic blue terminal / IBM CGA aesthetic: a bright,
+ * saturated cobalt background with clean white text.
+ */
+
+:root,
+.light {
+  /* Light variant: bright royal blue — saturated, not washed out */
+  /* --canvas: #3568c8; */
+  --canvas: #305eb4;
+  --ink: #f0f5ff;
+
+  --primary: #ffffff;
+  --primary-foreground: #2a5aa0;
+
+  --muted-foreground: color-mix(in oklch, var(--ink) 80%, var(--canvas));
+  --subtle-foreground: color-mix(in oklch, var(--ink) 62%, var(--canvas));
+  --readback-foreground: color-mix(in oklch, var(--ink) 70%, var(--canvas));
+
+  --timeline-accent: #d0e4ff;
+  --file-accent: var(--timeline-accent);
+
+  --destructive: #ff6060;
+  --destructive-foreground: #1a1a2e;
+  --destructive-text: #ffa0a0;
+  --warning: #ffd060;
+  --warning-text: #ffe080;
+  --attention: #ffc850;
+  --success: #60d880;
+  --diff-added: #60d880;
+  --diff-removed: #ff6060;
+  --pr-merged: #c89ef0;
+
+  /* Sidebar — slightly deeper shade */
+  --sidebar: #4278c4;
+  --sidebar-foreground: var(--ink);
+  --sidebar-accent: #5088d8;
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: #5a90e0;
+
+  /* Borders */
+  --border: #5a90e0;
+  --border-hairline: #6098e8;
+  --border-seam: #4a84d4;
+  --border-seam-vertical: var(--border-seam);
+
+  --input: #6098e8;
+  --ring: #ffffff;
+
+  /* Surfaces */
+  --surface-recessed: color-mix(in oklab, #000030 10%, transparent);
+  --surface-recessed-solid: #4278c4;
+  --surface-recessed-soft-solid: #4580cc;
+  --surface-raised: color-mix(in oklab, #ffffff 8%, transparent);
+  --surface-raised-solid: #5590dd;
+  --surface-scrim: color-mix(in oklab, #2a5aa0 85%, transparent);
+
+  --state-hover: color-mix(in oklab, #ffffff 12%, transparent);
+  --state-active: color-mix(in oklab, #ffffff 20%, transparent);
+
+  --surface-selected: color-mix(in oklab, #ffffff 18%, transparent);
+  --surface-selected-border: color-mix(in oklab, #ffffff 35%, transparent);
+
+  --card: var(--canvas);
+  --card-foreground: var(--ink);
+  --popover: #3a70c0;
+  --popover-foreground: var(--ink);
+
+  /* Shadows */
+  --shadow-2xs: 0px 2px 0px 0px hsl(220 60% 15% / 0.15);
+  --shadow-xs: 0px 2px 0px 0px hsl(220 60% 15% / 0.15);
+  --shadow-sm: 0px 2px 0px 0px hsl(220 60% 15% / 0.2), 0px 1px 2px -1px hsl(220 60% 15% / 0.3);
+  --shadow: 0px 2px 0px 0px hsl(220 60% 15% / 0.2), 0px 1px 2px -1px hsl(220 60% 15% / 0.3);
+  --shadow-md: 0px 2px 0px 0px hsl(220 60% 15% / 0.2), 0px 2px 4px -1px hsl(220 60% 15% / 0.35);
+  --shadow-lift: 0px -4px 12px -4px hsl(220 60% 15% / 0.15);
+  --shadow-lg: 0px 2px 0px 0px hsl(220 60% 15% / 0.2), 0px 4px 6px -1px hsl(220 60% 15% / 0.35);
+  --shadow-xl: 0px 2px 0px 0px hsl(220 60% 15% / 0.25), 0px 8px 10px -1px hsl(220 60% 15% / 0.45);
+  --shadow-2xl: 0px 2px 0px 0px hsl(220 60% 15% / 0.4);
+
+  /* ANSI palette — bright on blue */
+  --ansi-0: #90a8d8;
+  --ansi-1: #ff7070;
+  --ansi-2: #70e890;
+  --ansi-3: #ffe878;
+  --ansi-4: #98ccff;
+  --ansi-5: #d898ff;
+  --ansi-6: #68e0f0;
+  --ansi-7: #e8f0ff;
+  --ansi-8: #a0b8e0;
+  --ansi-9: #ff9898;
+  --ansi-10: #90f0a8;
+  --ansi-11: #fff098;
+  --ansi-12: #a8d8ff;
+  --ansi-13: #e8b0ff;
+  --ansi-14: #80f0f8;
+  --ansi-15: #ffffff;
+
+  --ansi-bg-fg-0: #000000;
+  --ansi-bg-fg-1: #000000;
+  --ansi-bg-fg-2: #000000;
+  --ansi-bg-fg-3: #000000;
+  --ansi-bg-fg-4: #000000;
+  --ansi-bg-fg-5: #000000;
+  --ansi-bg-fg-6: #000000;
+  --ansi-bg-fg-7: #000000;
+  --ansi-bg-fg-8: #000000;
+  --ansi-bg-fg-9: #000000;
+  --ansi-bg-fg-10: #000000;
+  --ansi-bg-fg-11: #000000;
+  --ansi-bg-fg-12: #000000;
+  --ansi-bg-fg-13: #000000;
+  --ansi-bg-fg-14: #000000;
+  --ansi-bg-fg-15: #000000;
+}
+
+:root,
+.light,
+.dark {
+  --font-sans: "Iowan Old Style", Georgia, serif;
+  --font-serif: "Iowan Old Style", Georgia, serif;
+  --text-sm: 1.0625rem;
+  --text-base: 1.1875rem;
+  --text-base--line-height: 1.625rem;
+  --text-2xs: 0.8125rem;
+  --text-2xs--line-height: 1.0625rem;
+  --font-mono: "Google Sans Code", "Fira Code", monospace;
+  --text-xs: 0.9375rem;
+  --text-xs--line-height: 1.375rem;
+}
+
+/* Widen chat content area — reduce left/right margins */
+.max-w-\[760px\] {
+  max-width: 960px !important;
+}
+
+.dark {
+  /* Vivid cobalt / ultramarine — the hero blue */
+  --canvas: #2550a8;
+  --ink: #f0f4ff;
+
+  /* Bright sky-blue accent */
+  --primary: #a0ccff;
+  --primary-foreground: #1a3068;
+
+  /* Text hierarchy — high contrast on the vivid blue */
+  --muted-foreground: color-mix(in oklch, var(--ink) 82%, var(--canvas));
+  --subtle-foreground: color-mix(in oklch, var(--ink) 65%, var(--canvas));
+  --readback-foreground: color-mix(in oklch, var(--ink) 72%, var(--canvas));
+
+  --timeline-accent: #a0ccff;
+  --file-accent: var(--timeline-accent);
+
+  /* Semantic colors — tuned for blue background */
+  --destructive: #ff7070;
+  --destructive-foreground: #1a1a2e;
+  --destructive-text: #ffaaaa;
+  --warning: #ffd060;
+  --warning-text: #ffe080;
+  --attention: #ffc850;
+  --success: #70e090;
+  --diff-added: #70e090;
+  --diff-removed: #ff7070;
+  --pr-merged: #c89ef0;
+
+  /* Sidebar — slightly deeper blue */
+  --sidebar: #1e4490;
+  --sidebar-foreground: var(--ink);
+  --sidebar-accent: #2e5cb0;
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: #3568b8;
+
+  /* Borders — lighter blue edges */
+  --border: #3568b8;
+  --border-hairline: #3d70c0;
+  --border-seam: #2a58a5;
+  --border-seam-vertical: var(--border-seam);
+
+  /* Input field border */
+  --input: #3d70c0;
+
+  /* Ring */
+  --ring: #a0ccff;
+
+  /* Surfaces — blue-tinted translucent layers */
+  --surface-recessed: color-mix(in oklab, #000020 14%, transparent);
+  --surface-recessed-solid: #1e4490;
+  --surface-recessed-soft-solid: #204898;
+  --surface-raised: color-mix(in oklab, #ffffff 8%, transparent);
+  --surface-raised-solid: #3060b0;
+  --surface-scrim: color-mix(in oklab, #183878 88%, transparent);
+
+  /* State fills */
+  --state-hover: color-mix(in oklab, #ffffff 10%, transparent);
+  --state-active: color-mix(in oklab, #ffffff 18%, transparent);
+
+  /* Selection */
+  --surface-selected: color-mix(in oklab, #a0ccff 20%, transparent);
+  --surface-selected-border: color-mix(in oklab, #a0ccff 40%, transparent);
+
+  /* Card / popover share the canvas */
+  --card: var(--canvas);
+  --card-foreground: var(--ink);
+  --popover: #1e4490;
+  --popover-foreground: var(--ink);
+
+  /* Shadows — subtle on a medium-blue bg */
+  --shadow-2xs: 0px 2px 0px 0px hsl(220 60% 10% / 0.2);
+  --shadow-xs: 0px 2px 0px 0px hsl(220 60% 10% / 0.2);
+  --shadow-sm: 0px 2px 0px 0px hsl(220 60% 10% / 0.25), 0px 1px 2px -1px hsl(220 60% 10% / 0.35);
+  --shadow: 0px 2px 0px 0px hsl(220 60% 10% / 0.25), 0px 1px 2px -1px hsl(220 60% 10% / 0.35);
+  --shadow-md: 0px 2px 0px 0px hsl(220 60% 10% / 0.25), 0px 2px 4px -1px hsl(220 60% 10% / 0.4);
+  --shadow-lift: 0px -4px 12px -4px hsl(220 60% 10% / 0.2);
+  --shadow-lg: 0px 2px 0px 0px hsl(220 60% 10% / 0.25), 0px 4px 6px -1px hsl(220 60% 10% / 0.4);
+  --shadow-xl: 0px 2px 0px 0px hsl(220 60% 10% / 0.3), 0px 8px 10px -1px hsl(220 60% 10% / 0.5);
+  --shadow-2xl: 0px 2px 0px 0px hsl(220 60% 10% / 0.5);
+
+  /* ANSI palette — bright on blue */
+  --ansi-0: #8090b8;
+  --ansi-1: #ff7070;
+  --ansi-2: #70e090;
+  --ansi-3: #ffe070;
+  --ansi-4: #80bbff;
+  --ansi-5: #d090ee;
+  --ansi-6: #60d8e8;
+  --ansi-7: #e0e8f8;
+  --ansi-8: #90a0c0;
+  --ansi-9: #ff9090;
+  --ansi-10: #88f0a8;
+  --ansi-11: #fff090;
+  --ansi-12: #98ccff;
+  --ansi-13: #e0a8ff;
+  --ansi-14: #78e8f0;
+  --ansi-15: #ffffff;
+
+  --ansi-bg-fg-0: #000000;
+  --ansi-bg-fg-1: #000000;
+  --ansi-bg-fg-2: #000000;
+  --ansi-bg-fg-3: #000000;
+  --ansi-bg-fg-4: #000000;
+  --ansi-bg-fg-5: #000000;
+  --ansi-bg-fg-6: #000000;
+  --ansi-bg-fg-7: #000000;
+  --ansi-bg-fg-8: #000000;
+  --ansi-bg-fg-9: #000000;
+  --ansi-bg-fg-10: #000000;
+  --ansi-bg-fg-11: #000000;
+  --ansi-bg-fg-12: #000000;
+  --ansi-bg-fg-13: #000000;
+  --ansi-bg-fg-14: #000000;
+  --ansi-bg-fg-15: #000000;
+}
