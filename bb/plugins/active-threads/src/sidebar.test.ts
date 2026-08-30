@@ -11,6 +11,11 @@ import {
   threadDepth,
   threadDisplayTitle,
 } from "./sidebar.ts";
+import {
+  describeRecentWindow,
+  getRecentWindowMs,
+  normalizeRecentWindow,
+} from "./settings.ts";
 
 const emptyActivity = {
   workflows: 0,
@@ -77,6 +82,23 @@ test("keeps running threads and unexpired processing leases live", () => {
   assert.equal(
     getThreadLiveness(base, now, now - 31 * 60_000),
     "none",
+  );
+  assert.equal(
+    getThreadLiveness(base, now, now - 90 * 60_000, 2 * 60 * 60_000),
+    "recent",
+  );
+  assert.equal(getThreadLiveness(base, now, now, 0), "none");
+});
+
+test("maps recent-window settings and safely falls back to 30 minutes", () => {
+  assert.equal(getRecentWindowMs("Running only"), 0);
+  assert.equal(getRecentWindowMs("2 hours"), 2 * 60 * 60_000);
+  assert.equal(getRecentWindowMs("not-a-window"), 30 * 60_000);
+  assert.equal(normalizeRecentWindow(undefined), "30 minutes");
+  assert.equal(describeRecentWindow("Running only"), "Running threads only");
+  assert.equal(
+    describeRecentWindow("1 hour"),
+    "Running now or processed a message in the last 1 hour",
   );
 });
 

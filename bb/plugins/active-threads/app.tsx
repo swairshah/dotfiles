@@ -5,6 +5,7 @@ import {
   experimental_useSidebarThreadActions as useSidebarThreadActions,
   experimental_useSidebarThreadSplit as useSidebarThreadSplit,
   experimental_useSidebarThreads as useSidebarThreads,
+  useSettings,
   type PluginSidebarProject,
   type PluginSidebarThread,
   type PluginSidebarThreadIndicator,
@@ -19,11 +20,15 @@ import {
   getThreadLiveness,
   isActiveThread,
   matchesThreadSearch,
-  THREAD_LIVENESS_WINDOW_MS,
   threadDepth,
   threadDisplayTitle,
   type ThreadLiveness,
 } from "./src/sidebar";
+import {
+  describeRecentWindow,
+  getRecentWindowMs,
+  MAX_RECENT_WINDOW_MS,
+} from "./src/settings";
 
 const COLLAPSED_PROJECTS_KEY = "bb-plugin-active-threads:collapsed-projects";
 const PROCESSING_LEASES_KEY = "bb-plugin-active-threads:processing-leases";
@@ -42,6 +47,9 @@ function ActiveThreadsSidebar({
 }: PluginThreadListProps) {
   const { status, threads, projects } = useSidebarThreads();
   const actions = useSidebarThreadActions();
+  const { values: settings } = useSettings();
+  const recentWindow = settings?.recentWindow;
+  const recentWindowMs = getRecentWindowMs(recentWindow);
   const [collapsedProjectIds, setCollapsedProjectIds] = useState<Set<string> | null>(
     readCollapsedProjects,
   );
@@ -83,14 +91,19 @@ function ActiveThreadsSidebar({
           return {
             thread,
             lastProcessingAt,
-            liveness: getThreadLiveness(thread, now, lastProcessingAt),
+            liveness: getThreadLiveness(
+              thread,
+              now,
+              lastProcessingAt,
+              recentWindowMs,
+            ),
           };
         })
         .filter((entry): entry is LiveThreadEntry => entry.liveness !== "none")
         .sort((left, right) =>
           compareSidebarThreads(left.thread, right.thread),
         ),
-    [now, processingLeases, visibleThreads],
+    [now, processingLeases, recentWindowMs, visibleThreads],
   );
   const liveThreadIds = useMemo(
     () => new Set(liveThreads.map(({ thread }) => thread.id)),
@@ -145,12 +158,12 @@ function ActiveThreadsSidebar({
         [...current].filter(
           ([threadId, lastProcessingAt]) =>
             runningThreadIds.has(threadId) ||
-            now - lastProcessingAt <= THREAD_LIVENESS_WINDOW_MS,
+            (recentWindowMs > 0 && now - lastProcessingAt <= recentWindowMs),
         ),
       );
       return next.size === current.size ? current : next;
     });
-  }, [now, runningThreadIds]);
+  }, [now, recentWindowMs, runningThreadIds]);
 
   useEffect(() => {
     try {
@@ -283,6 +296,7 @@ function ActiveThreadsSidebar({
         now={now}
         onNavigate={onNavigate}
         searchQuery={searchQuery}
+        description={describeRecentWindow(recentWindow)}
       />
 
       <section aria-label="Projects" className="px-1.5 pb-3 pt-2">
@@ -340,6 +354,7 @@ function LiveSection({
   now,
   onNavigate,
   searchQuery,
+  description,
 }: {
   entries: readonly LiveThreadEntry[];
   totalCount: number;
@@ -349,11 +364,12 @@ function LiveSection({
   now: number;
   onNavigate: () => void;
   searchQuery: string;
+  description: string;
 }) {
   return (
     <section
       aria-label="Live threads"
-      title="Running now or processed a message in the last 30 minutes"
+      title={description}
       className="mx-1.5 mt-1 rounded-xl bg-sidebar-accent/45 p-1 shadow-sm ring-1 ring-sidebar-border/60"
     >
       <div className="flex h-8 items-center gap-2 px-2">
@@ -804,7 +820,7 @@ function readProcessingLeases(): Map<string, number> {
           typeof lastProcessingAt === "number" &&
           Number.isFinite(lastProcessingAt) &&
           lastProcessingAt <= now + 60_000 &&
-          now - lastProcessingAt <= THREAD_LIVENESS_WINDOW_MS,
+          now - lastProcessingAt <= MAX_RECENT_WINDOW_MS,
       ),
     );
   } catch {

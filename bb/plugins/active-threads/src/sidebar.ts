@@ -47,6 +47,7 @@ export function getThreadLiveness(
   if (thread.isArchived) return "none";
   if (isActiveThread(thread)) return "running";
   if (
+    windowMs > 0 &&
     lastProcessingAt !== null &&
     now - lastProcessingAt <= windowMs
   ) {

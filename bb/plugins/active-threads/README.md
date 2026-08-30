@@ -6,6 +6,7 @@ A bb sidebar plugin that keeps live conversations in one **Live threads** block 
 
 - A thread becomes live only when real processing starts after a message; clicking or reading never promotes it.
 - It stays live while work is running and for 30 minutes after processing finishes.
+- The recent-thread window is configurable from **Extensions → Plugins → Active Threads**, from running-only through 24 hours.
 - Live rows show whether they are running or how long ago processing ended.
 - Live rows show their project and branch or machine for context.
 - Previous/next navigation follows one continuous order: Live threads first, then Remarkable, Verif, replay, and the remaining projects in sidebar order.
