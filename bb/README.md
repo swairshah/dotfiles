@@ -2,15 +2,10 @@
 
 This directory contains the portable parts of the local bb setup:
 
-- `themes/ultramarine`: the active custom blue theme
-- `plugins/active-threads`: the sidebar replacement that keeps live threads visible
+- `themes/ultramarine` contains the active custom blue theme.
+- `plugins/active-threads` contains the original sidebar replacement.
+- `plugins/bb-custom-sidebar` contains the compact custom sidebar with recent threads, Git status, hover actions, and project icons.
 
-Run `./install.sh` after cloning the dotfiles repository. The installer:
+Run `./install.sh` after cloning the dotfiles repository. The installer links the theme and both plugins into `~/.bb`, installs their dependencies, installs or reloads the plugins, and activates the Ultramarine theme.
 
-1. links the Ultramarine theme into `~/.bb/theme/ultramarine`;
-2. links the Active Threads source into `~/.bb/plugin-sources/active-threads`;
-3. installs or reloads the plugin from that stable link; and
-4. activates the Ultramarine theme.
-
-Existing non-symlink destinations are preserved with a timestamped `.backup-*`
-suffix before the links are created.
+Existing destinations that are not the expected symlinks are preserved with a timestamped `.backup-*` suffix before new links are created.
