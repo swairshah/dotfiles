@@ -1,0 +1,8 @@
+{
+  "name": "monograph",
+  "description": "Typeset technical design docs, RFCs and architecture notes as print-quality HTML/PDF monographs: numbered sections, three-column contents, STIX Two serif, Roboto Mono listings with line numbers, booktabs tables, §-cross-references.",
+  "version": "0.1.0",
+  "author": { "name": "swairshah", "url": "https://github.com/swairshah" },
+  "homepage": "https://github.com/swairshah/monograph",
+  "license": "MIT"
+}

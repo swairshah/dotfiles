@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "monograph",
+  "description": "A Claude Code skill that typesets technical docs as print-quality monographs instead of terminal text.",
+  "owner": { "name": "swairshah", "url": "https://github.com/swairshah" },
+  "plugins": [
+    {
+      "name": "monograph",
+      "description": "Design docs, RFCs and architecture notes as designed HTML/PDF: numbered sections, contents block, serif body, ruled code listings, booktabs tables.",
+      "source": "./",
+      "category": "documentation",
+      "tags": ["design-doc", "rfc", "architecture", "html", "pdf", "markdown", "typography"]
+    }
+  ]
+}
