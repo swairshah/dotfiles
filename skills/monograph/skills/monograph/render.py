@@ -7,7 +7,11 @@ three-column contents block, booktabs tables, ruled listings with line
 numbers and captions.
 
 Usage:
-    python3 render.py doc.md [out.html] [--open] [--pdf]
+    python3 render.py doc.md [out.html] [--open] [--pdf] [--theme=light|dark|auto]
+
+Theme defaults to `theme:` in frontmatter, else auto (follows the OS); a
+fixed toggle button lets the reader switch and remembers the choice. Print
+and --pdf output are always light on white.
 """
 import html
 import json
@@ -417,7 +421,7 @@ def render_footnotes(toks, refs):
 
 
 # --------------------------------------------------------------------------- page
-def build(md_text: str, base_dir: Path) -> str:
+def build(md_text: str, base_dir: Path, theme: str = "") -> str:
     meta, body = parse_frontmatter(md_text)
     toks = tokenize(body)
     title = meta.get("title")
@@ -440,8 +444,10 @@ def build(md_text: str, base_dir: Path) -> str:
     abstract = f'<p class="abstract">{inline(meta["abstract"], refs)}</p>' if meta.get("abstract") else ""
     source = md_text.replace("</script", "<\\/script")
     byline_html = f'<p class="byline">{esc(byline)}</p>' if byline else ""
+    theme = (theme or meta.get("theme", "auto")).lower()
+    theme_attr = f' data-theme="{theme}"' if theme in ("light", "dark") else ""
     return f"""<!doctype html>
-<html lang="en">
+<html lang="en"{theme_attr}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -452,6 +458,7 @@ def build(md_text: str, base_dir: Path) -> str:
 </style>
 </head>
 <body>
+<button class="theme-toggle" type="button" aria-label="Toggle light/dark">dark</button>
 <main class="doc">
 <header class="titleblock">
 <h1 class="title">{inline(title)}</h1>
@@ -464,9 +471,21 @@ def build(md_text: str, base_dir: Path) -> str:
 {render_footnotes(toks, refs)}
 </main>
 <script type="text/markdown" id="source-md">{source}</script>
+<script>{THEME_JS}</script>
 </body>
 </html>
 """
+
+
+THEME_JS = """(function(){
+var h=document.documentElement,b=document.querySelector('.theme-toggle'),k='monograph-theme';
+var saved=null;try{saved=localStorage.getItem(k)}catch(e){}
+if(saved==='light'||saved==='dark')h.setAttribute('data-theme',saved);
+function cur(){var t=h.getAttribute('data-theme');if(t)return t;return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+function label(){b.textContent=cur()==='dark'?'light':'dark'}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem(k,n)}catch(e){}label()});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',label);label();
+})();"""
 
 
 def to_pdf(html_path: Path, pdf_path: Path):
@@ -491,7 +510,8 @@ def main(argv):
     src = Path(pos[0])
     out = Path(pos[1]) if len(pos) > 1 else src.with_suffix(".html")
     md = src.read_text(encoding="utf-8")
-    out.write_text(build(md, src.parent), encoding="utf-8")
+    theme = next((f.split("=", 1)[1] for f in flags if f.startswith("--theme=")), None)
+    out.write_text(build(md, src.parent, theme), encoding="utf-8")
     print(f"monograph: wrote {out}")
     if "--pdf" in flags:
         to_pdf(out, out.with_suffix(".pdf"))

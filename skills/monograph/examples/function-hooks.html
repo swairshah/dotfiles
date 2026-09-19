@@ -23,12 +23,52 @@
   --str: #802466;
   --link: #1a4d99;
   --rule: #000;
+  --paper: #fff;
+  --desk: #f4f4f2;
+  --shadow: 0 1px 3px rgba(0,0,0,.12), 0 8px 30px rgba(0,0,0,.06);
   --fs: 13pt;
   --lh: 17.5pt;
   --measure: 7.2in;
+  color-scheme: light;
 }
 
-html { background: #f4f4f2; }
+/* dark: same ink hierarchy inverted; syntax colours lifted for contrast */
+html[data-theme="dark"] {
+  --ink: #e6e4df;
+  --code-ink: #d9d7d2;
+  --muted: #a3a09a;
+  --num: #8e8c88;
+  --ln: #6a6864;
+  --kw: #8ab4f8;
+  --str: #e39ccf;
+  --link: #8ab4f8;
+  --rule: #cfcdc8;
+  --paper: #1b1b1d;
+  --desk: #0f0f10;
+  --shadow: 0 1px 3px rgba(0,0,0,.6), 0 8px 30px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --ink: #e6e4df;
+    --code-ink: #d9d7d2;
+    --muted: #a3a09a;
+    --num: #8e8c88;
+    --ln: #6a6864;
+    --kw: #8ab4f8;
+    --str: #e39ccf;
+    --link: #8ab4f8;
+    --rule: #cfcdc8;
+    --paper: #1b1b1d;
+    --desk: #0f0f10;
+    --shadow: 0 1px 3px rgba(0,0,0,.6), 0 8px 30px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+html[data-theme="dark"] figure img { filter: invert(.92) hue-rotate(180deg); }
+@media (prefers-color-scheme: dark) { html:not([data-theme]) figure img { filter: invert(.92) hue-rotate(180deg); } }
+
+html { background: var(--desk); }
 body {
   margin: 0;
   color: var(--ink);
@@ -41,12 +81,21 @@ body {
 }
 
 .doc {
-  background: #fff;
+  background: var(--paper);
   max-width: var(--measure);
   margin: 0.5in auto;
   padding: 0.55in 0.65in 0.9in;
-  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 8px 30px rgba(0,0,0,.06);
+  box-shadow: var(--shadow);
 }
+
+/* ---- theme toggle (screen only) -------------------------------------- */
+.theme-toggle {
+  position: fixed; top: 12px; right: 14px;
+  font: 11pt/1 var(--serif); color: var(--muted);
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 999px;
+  padding: 5px 11px; cursor: pointer; opacity: .75;
+}
+.theme-toggle:hover { opacity: 1; color: var(--ink); }
 
 /* ---- title block ---------------------------------------------------- */
 .titleblock { text-align: center; margin: 0 0 22pt; }
@@ -184,7 +233,13 @@ table.tab.headerless td:first-child em { font-family: var(--serif); font-size: 1
 /* ---- print ---------------------------------------------------------- */
 @page { size: letter; margin: 0.65in 0.65in 0.75in; }
 @media print {
-  html { background: #fff; }
+  html, html[data-theme="dark"] {
+    --ink: #000; --code-ink: #262626; --muted: #595959; --num: #737378; --ln: #9e9ea3;
+    --kw: #0d3d8c; --str: #802466; --link: #1a4d99; --rule: #000; --paper: #fff; --desk: #fff;
+    background: #fff; color-scheme: light;
+  }
+  html[data-theme="dark"] figure img, html:not([data-theme]) figure img { filter: none; }
+  .theme-toggle { display: none; }
   .doc { max-width: none; margin: 0; padding: 0; box-shadow: none; }
   a { color: var(--link); }
   figure.listing pre { overflow: visible; white-space: pre-wrap; }
@@ -199,6 +254,7 @@ table.tab.headerless td:first-child em { font-family: var(--serif); font-size: 1
 </style>
 </head>
 <body>
+<button class="theme-toggle" type="button" aria-label="Toggle light/dark">dark</button>
 <main class="doc">
 <header class="titleblock">
 <h1 class="title">Function Hooks: Core Architecture</h1>
@@ -510,5 +566,14 @@ A hook is never re-entered while its own frame is being dispatched: the engine s
 | *Deeply web* | Every part is lifted from the language of the web: Koa's `next`, the DOM's event object and `AbortSignal`, TypeScript's declaration merging, JSX. |
 | *Structural* | We set up some dominoes and scatter some legos; we hope for enduring emergence. |
 </script>
+<script>(function(){
+var h=document.documentElement,b=document.querySelector('.theme-toggle'),k='monograph-theme';
+var saved=null;try{saved=localStorage.getItem(k)}catch(e){}
+if(saved==='light'||saved==='dark')h.setAttribute('data-theme',saved);
+function cur(){var t=h.getAttribute('data-theme');if(t)return t;return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+function label(){b.textContent=cur()==='dark'?'light':'dark'}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem(k,n)}catch(e){}label()});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',label);label();
+})();</script>
 </body>
 </html>

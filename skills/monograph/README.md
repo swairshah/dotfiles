@@ -10,6 +10,7 @@ The agent writes Markdown; `render.py` (Python 3, zero dependencies) produces on
 - Hairline-ruled code listings with grey line numbers, syntax colours, `Listing N:` captions
 - Booktabs tables (2pt top/bottom rule, 1pt under header), definition tables with mono terms
 - `Figure N:` captioned figures, footnotes, print stylesheet with 0.65in margins
+- Light/dark: follows the OS, corner toggle remembers your choice; PDF is always black-on-white
 
 ## Install
 
@@ -23,12 +24,15 @@ Or as a plugin: `/plugin marketplace add ~/dotfiles/skills/monograph` then `/plu
 
 Then ask for a design doc, RFC, architecture note or spec — or run `/monograph <topic>` — and you get a path to an `.html`/`.pdf` instead of terminal text.
 
+In [pi](https://github.com/badlogic/pi-mono), `setup.sh` links `pi-stuff/extensions/magazine.ts`, which gives you `/magazine [--pdf] [--dark|--light] <what to write>`.
+
 ## Standalone use
 
 ```bash
 python3 skills/monograph/render.py doc.md            # doc.html
 python3 skills/monograph/render.py doc.md --pdf      # + doc.pdf (needs Chrome/Chromium on PATH)
 python3 skills/monograph/render.py doc.md --open
+python3 skills/monograph/render.py doc.md --theme=dark   # force a theme (default: auto)
 ```
 
 See [`skills/monograph/SKILL.md`](skills/monograph/SKILL.md) for the Markdown conventions (frontmatter, captioned fences, definition lists, headerless tables) and [`examples/function-hooks.md`](examples/function-hooks.md) for a complete worked example.

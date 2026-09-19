@@ -45,6 +45,7 @@ subtitle: optional italic line under the title
 abstract: optional paragraph set before §1
 toc: true                 # false to suppress the contents block
 fonts: google             # "local" to skip the Google Fonts link (offline)
+theme: auto               # auto (follow OS) | light | dark; reader can toggle; print/PDF always light
 ---
 ```
 
@@ -118,6 +119,6 @@ export function register(on) {
 
 ## Output
 
-- One self-contained `.html` (CSS inlined; only external request is Google Fonts for STIX Two Text / Roboto Mono, with Times / system-mono fallbacks; set `fonts: local` to skip).
+- One self-contained `.html` (CSS inlined; only external request is Google Fonts for STIX Two Text / Roboto Mono, with Times / system-mono fallbacks; set `fonts: local` to skip). Light/dark: follows the OS by default (`theme:` frontmatter or `--theme=dark` overrides), a corner toggle switches and remembers; the PDF is always black-on-white.
 - `--pdf` prints US-Letter with 0.65in margins through headless Chrome/Chromium if one is on `PATH`; otherwise open the HTML and print — the print stylesheet is identical.
 - See `examples/function-hooks.md` (and its `.html`/`.pdf`) in the repository for a full worked example reproducing the reference paper.
