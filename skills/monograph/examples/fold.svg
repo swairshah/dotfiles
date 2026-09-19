@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="150" viewBox="0 0 520 150" font-family="STIX Two Text, Times, serif" font-size="12">
+  <g fill="#000">
+    <text x="10" y="32">A</text><text x="10" y="58">B</text><text x="10" y="84">C</text><text x="4" y="110">core</text><text x="10" y="136">⊥</text>
+  </g>
+  <text x="70" y="22" font-style="italic">next(e)</text>
+  <text x="470" y="22" font-style="italic">result</text>
+  <g stroke="#000" stroke-width="1">
+    <rect x="40" y="24" width="430" height="10" fill="#bbb"/>
+    <rect x="100" y="24" width="300" height="10" fill="#fff"/>
+    <rect x="100" y="50" width="300" height="10" fill="#bbb"/>
+    <rect x="160" y="50" width="180" height="10" fill="#fff"/>
+    <rect x="160" y="76" width="180" height="10" fill="#bbb"/>
+    <rect x="210" y="76" width="80" height="10" fill="#fff"/>
+    <rect x="210" y="102" width="80" height="10" fill="#bbb"/>
+    <rect x="240" y="128" width="20" height="10" fill="#000"/>
+  </g>
+  <g stroke="#000" stroke-width="0.6" stroke-dasharray="2 2">
+    <line x1="100" y1="34" x2="100" y2="50"/><line x1="400" y1="34" x2="400" y2="50"/>
+    <line x1="160" y1="60" x2="160" y2="76"/><line x1="340" y1="60" x2="340" y2="76"/>
+    <line x1="210" y1="86" x2="210" y2="102"/><line x1="290" y1="86" x2="290" y2="102"/>
+  </g>
+</svg>

@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Function Hooks: Core Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+<style>
+/* monograph — typeset like a short technical monograph.
+   Measurements taken from a US-Letter Google-Docs export:
+   body STIX Two Text 13pt/17.5pt justified, Roboto Mono 11pt inline,
+   0.65in margins, hairline-ruled listings, booktabs tables. */
+
+:root {
+  --serif: "STIX Two Text", "STIXGeneral", "Times New Roman", Times, serif;
+  --mono: "Roboto Mono", "Fira Code", "SF Mono", Menlo, Consolas, monospace;
+  --ink: #000;
+  --code-ink: #262626;
+  --muted: #595959;
+  --num: #737378;
+  --ln: #9e9ea3;
+  --kw: #0d3d8c;
+  --str: #802466;
+  --link: #1a4d99;
+  --rule: #000;
+  --paper: #fff;
+  --desk: #f4f4f2;
+  --shadow: 0 1px 3px rgba(0,0,0,.12), 0 8px 30px rgba(0,0,0,.06);
+  --fs: 13pt;
+  --lh: 17.5pt;
+  --measure: 7.2in;
+  color-scheme: light;
+}
+
+/* dark: same ink hierarchy inverted; syntax colours lifted for contrast */
+html[data-theme="dark"] {
+  --ink: #e6e4df;
+  --code-ink: #d9d7d2;
+  --muted: #a3a09a;
+  --num: #8e8c88;
+  --ln: #6a6864;
+  --kw: #8ab4f8;
+  --str: #e39ccf;
+  --link: #8ab4f8;
+  --rule: #cfcdc8;
+  --paper: #1b1b1d;
+  --desk: #0f0f10;
+  --shadow: 0 1px 3px rgba(0,0,0,.6), 0 8px 30px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --ink: #e6e4df;
+    --code-ink: #d9d7d2;
+    --muted: #a3a09a;
+    --num: #8e8c88;
+    --ln: #6a6864;
+    --kw: #8ab4f8;
+    --str: #e39ccf;
+    --link: #8ab4f8;
+    --rule: #cfcdc8;
+    --paper: #1b1b1d;
+    --desk: #0f0f10;
+    --shadow: 0 1px 3px rgba(0,0,0,.6), 0 8px 30px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+html[data-theme="dark"] figure img { filter: invert(.92) hue-rotate(180deg); }
+@media (prefers-color-scheme: dark) { html:not([data-theme]) figure img { filter: invert(.92) hue-rotate(180deg); } }
+
+html { background: var(--desk); }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--fs);
+  line-height: var(--lh);
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.doc {
+  background: var(--paper);
+  max-width: var(--measure);
+  margin: 0.5in auto;
+  padding: 0.55in 0.65in 0.9in;
+  box-shadow: var(--shadow);
+}
+
+/* ---- theme toggle (screen only) -------------------------------------- */
+.theme-toggle {
+  position: fixed; top: 12px; right: 14px;
+  font: 11pt/1 var(--serif); color: var(--muted);
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 999px;
+  padding: 5px 11px; cursor: pointer; opacity: .75;
+}
+.theme-toggle:hover { opacity: 1; color: var(--ink); }
+
+/* ---- title block ---------------------------------------------------- */
+.titleblock { text-align: center; margin: 0 0 22pt; }
+.titleblock p { text-align: center; }
+.title { font-size: 23pt; font-weight: 400; line-height: 1.2; margin: 0 0 8pt; letter-spacing: -0.005em; }
+.subtitle { font-size: 14pt; font-style: italic; margin: 0 0 6pt; }
+.byline { font-size: 12.5pt; color: var(--muted); margin: 0; }
+
+/* ---- contents ------------------------------------------------------- */
+.toc {
+  column-count: 3;
+  column-gap: 18pt;
+  margin: 0 0 20pt 6pt;
+  font-size: 13pt;
+  line-height: 17.5pt;
+}
+.toc-group { break-inside: avoid; margin-bottom: 6pt; }
+.toc a { color: inherit; text-decoration: none; display: block; }
+.toc .num { color: var(--num); display: inline-block; min-width: 1.25em; margin-right: 0.35em; text-align: right; }
+.toc-h { font-weight: 700; }
+.toc-h .num { min-width: 0.7em; }
+.toc-s { padding-left: 1.05em; text-indent: -1.95em; margin-left: 1.95em; }
+.toc-s .num { min-width: 1.6em; }
+
+/* ---- headings ------------------------------------------------------- */
+h2, h3, h4 { font-weight: 700; line-height: 1.25; page-break-after: avoid; }
+h2 { font-size: 15pt; margin: 26pt 0 10pt; }
+h3 { font-size: 13.5pt; margin: 18pt 0 8pt; }
+h4 { font-size: 13pt; margin: 14pt 0 6pt; font-style: italic; font-weight: 400; }
+h2 .num, h3 .num, h4 .num { margin-right: 0; }
+
+/* ---- text ----------------------------------------------------------- */
+p { margin: 0 0 8pt; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+p.abstract { font-size: 12pt; margin: 0 24pt 16pt; }
+em { font-style: italic; }
+strong { font-weight: 700; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a.secref { color: var(--link); }
+sup.fn { font-size: 0.7em; line-height: 0; }
+sup.fn a { color: var(--link); }
+hr { border: 0; border-top: 1pt solid var(--rule); margin: 18pt 0; }
+ul, ol { margin: 0 0 8pt; padding-left: 1.6em; }
+li { margin: 0 0 2pt; text-align: justify; }
+blockquote { margin: 8pt 22pt 12pt; font-style: italic; }
+blockquote code { font-style: normal; }
+.math { text-align: center; font-family: var(--serif); font-style: italic; margin: 8pt 0 12pt; }
+
+code {
+  font-family: var(--mono);
+  font-size: 11pt;
+  color: var(--code-ink);
+  letter-spacing: -0.01em;
+  hyphens: none; -webkit-hyphens: none;
+}
+p code, li code, td code, th code, h2 code, h3 code { font-size: 0.85em; }
+
+/* ---- listings ------------------------------------------------------- */
+figure { margin: 0; }
+figure.listing { margin: 10pt 0 12pt; page-break-inside: avoid; }
+figure.listing pre {
+  margin: 0;
+  padding: 6pt 6pt 7pt;
+  border-top: 1pt solid var(--rule);
+  border-bottom: 1pt solid var(--rule);
+  font-family: var(--mono);
+  font-size: 10pt;
+  line-height: 15.5pt;
+  color: var(--ink);
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 2;
+}
+figure.listing pre code { font-size: inherit; color: inherit; font-family: inherit; letter-spacing: 0; }
+pre.numbered code { display: grid; grid-template-columns: max-content 1fr; column-gap: 12pt; counter-reset: line; }
+pre.numbered .ln::before { counter-increment: line; content: counter(line); }
+pre.numbered .ln { color: var(--ln); text-align: right; user-select: none; }
+pre.numbered .cl { white-space: pre; }
+pre .k { color: var(--kw); font-weight: 600; }
+pre .j { color: var(--kw); }
+pre .s { color: var(--str); }
+pre .c { color: var(--ln); }
+pre .n { color: var(--ink); }
+figure.listing figcaption,
+figure.fig figcaption {
+  font-size: 11pt;
+  line-height: 14pt;
+  margin-top: 5pt;
+  text-align: left;
+}
+figcaption .label { font-variant-numeric: tabular-nums; }
+
+/* ---- figures -------------------------------------------------------- */
+figure.fig { margin: 12pt 0 14pt; text-align: center; page-break-inside: avoid; }
+figure.fig img { max-width: 100%; height: auto; display: block; margin: 0 auto 6pt; }
+figure.fig figcaption { text-align: left; }
+p img { max-width: 100%; }
+
+/* ---- tables (booktabs) --------------------------------------------- */
+table.tab {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8pt 0 16pt;
+  border-top: 2pt solid var(--rule);
+  border-bottom: 2pt solid var(--rule);
+  font-size: 12pt;
+  line-height: 16pt;
+}
+table.tab tr { page-break-inside: avoid; }
+table.tab thead { display: table-header-group; }
+table.tab th {
+  font-weight: 700;
+  text-align: left;
+  padding: 7pt 8pt 6pt 2pt;
+  border-bottom: 1pt solid var(--rule);
+  vertical-align: bottom;
+}
+table.tab td { padding: 5pt 8pt 5pt 2pt; vertical-align: top; }
+table.tab tbody tr:first-child td { padding-top: 9pt; }
+table.tab tbody tr:last-child td { padding-bottom: 9pt; }
+table.tab td:first-child, table.tab th:first-child { width: 22%; padding-right: 16pt; }
+table.tab td.term { width: 1%; white-space: nowrap; padding-right: 22pt; }
+table.tab code { font-size: 10.5pt; }
+table.tab.headerless td:first-child { font-family: var(--mono); font-size: 10.5pt; color: var(--code-ink); }
+table.tab.headerless td:first-child em { font-family: var(--serif); font-size: 12pt; }
+
+/* ---- footnotes ------------------------------------------------------ */
+.footnotes { margin-top: 24pt; font-size: 11pt; line-height: 14pt; }
+.footnotes hr { width: 30%; margin: 0 0 8pt; }
+.footnotes ol { padding-left: 1.4em; }
+.footnotes .backref { margin-left: 0.3em; }
+
+#source-md { display: none; }
+
+/* ---- print ---------------------------------------------------------- */
+@page { size: letter; margin: 0.65in 0.65in 0.75in; }
+@media print {
+  html, html[data-theme="dark"] {
+    --ink: #000; --code-ink: #262626; --muted: #595959; --num: #737378; --ln: #9e9ea3;
+    --kw: #0d3d8c; --str: #802466; --link: #1a4d99; --rule: #000; --paper: #fff; --desk: #fff;
+    background: #fff; color-scheme: light;
+  }
+  html[data-theme="dark"] figure img, html:not([data-theme]) figure img { filter: none; }
+  .theme-toggle { display: none; }
+  .doc { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+  a { color: var(--link); }
+  figure.listing pre { overflow: visible; white-space: pre-wrap; }
+}
+
+@media (max-width: 720px) {
+  .doc { margin: 0; padding: 24px 18px 40px; }
+  .toc { column-count: 1; }
+  p { text-align: left; }
+}
+
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="Toggle light/dark">dark</button>
+<main class="doc">
+<header class="titleblock">
+<h1 class="title">Function Hooks: Core Architecture</h1>
+
+<p class="byline">Alice Poteat · August 2026 · Anthropic</p>
+</header>
+<nav class="toc" aria-label="Contents">
+<div class="toc-group"><a class="toc-h" href="#a-module-of-hooks"><span class="num">1</span>A Module of Hooks</a>
+<a class="toc-s" href="#anatomy"><span class="num">1.1</span>Anatomy</a>
+<a class="toc-s" href="#vocabulary"><span class="num">1.2</span>Vocabulary</a>
+</div>
+<div class="toc-group"><a class="toc-h" href="#algebra"><span class="num">2</span>Algebra</a>
+<a class="toc-s" href="#order-is-nesting"><span class="num">2.1</span>Order Is Nesting</a>
+<a class="toc-s" href="#five-placements"><span class="num">2.2</span>Five Placements</a>
+<a class="toc-s" href="#who-orders-the-plugins"><span class="num">2.3</span>Who Orders the Plugins</a>
+</div>
+<div class="toc-group"><a class="toc-h" href="#events"><span class="num">3</span>Events</a>
+<a class="toc-s" href="#the-event-object"><span class="num">3.1</span>The Event Object</a>
+<a class="toc-s" href="#render-events"><span class="num">3.2</span>Render Events</a>
+</div>
+<div class="toc-group"><a class="toc-h" href="#the-engine-interface"><span class="num">4</span>The Engine Interface</a>
+<a class="toc-s" href="#the-fold"><span class="num">4.1</span>The Fold</a>
+<a class="toc-s" href="#the-shape"><span class="num">4.2</span>The Shape</a>
+</div>
+<div class="toc-group"><a class="toc-h" href="#enterprise-management"><span class="num">5</span>Enterprise Management</a>
+</div>
+<div class="toc-group"><a class="toc-h" href="#miscellanea"><span class="num">6</span>Miscellanea</a>
+<a class="toc-s" href="#matchers"><span class="num">6.1</span>Matchers</a>
+<a class="toc-s" href="#the-bottom-hook"><span class="num">6.2</span>The Bottom Hook</a>
+<a class="toc-s" href="#recursion"><span class="num">6.3</span>Recursion</a>
+<a class="toc-s" href="#philosophy"><span class="num">6.4</span>Philosophy</a>
+</div>
+</nav>
+
+<h2 id="a-module-of-hooks"><span class="num">1.</span> A Module of Hooks</h2>
+<p>Hooks live in a <code>hooks.json</code> file, today of four extant types: command, prompt, agent, and http.</p>
+<p>We put forward a fifth kind, the <em>function</em>: <code>hooks.json</code> may also name a module, a file with extension <code>.js</code>, <code>.ts</code>, <code>.jsx</code> or <code>.tsx</code> beside it in the plugin’s <code>hooks/</code> directory. Functions compose, giving plugins a richer interface than commands can, fulfilling the dream of visual extensibility. A shell hook is a contract with an environment; a function hook is a contract with the engine. We hoist OS-integration and cross-surface complexity into <code>$</code> so that plugin authors can focus principally on the business and presentation logic inherent to their problem.</p>
+<p>A hook today, from the public documentation:</p>
+<figure class="listing"><pre><code class="lang-json">{ <span class="j">"hooks"</span>: {
+    <span class="j">"PreToolUse"</span>: [
+      { <span class="j">"matcher"</span>: <span class="s">"Bash"</span>,
+        <span class="j">"hooks"</span>: [ { <span class="j">"type"</span>: <span class="s">"command"</span>, <span class="j">"command"</span>: <span class="s">"./hooks/block-rm.sh"</span> } ] } ] } }</code></pre></figure>
+<p>The same hook-set as a function. In <code>hooks/hooks.json</code>, one new key beside any entries above:</p>
+<figure class="listing"><pre><code class="lang-json">{ <span class="j">"modules"</span>: [<span class="s">"./my-hooks.ts"</span>] }</code></pre></figure>
+<p>In <code>hooks/my-hooks.ts</code>, one may register their hook sequence via the <code>on</code> callback registrar:</p>
+<figure class="listing" id="listing-1"><pre class="numbered"><code class="lang-ts"><span class="ln"></span><span class="cl"><span class="k">export</span> <span class="k">function</span> register(on) {</span>
+<span class="ln"></span><span class="cl">  ⋯</span>
+<span class="ln"></span><span class="cl">  on(<span class="s">"tool.call"</span>, ($, e, next) =&gt; {</span>
+<span class="ln"></span><span class="cl">    <span class="k">if</span> (e.tool === <span class="s">"Bash"</span> &amp;&amp; e.command == <span class="s">"rm -rf /"</span>)</span>
+<span class="ln"></span><span class="cl">      <span class="k">return</span> { deny: <span class="s">"Destructive command blocked by hook"</span> }</span>
+<span class="ln"></span><span class="cl">    <span class="k">return</span> next(e)</span>
+<span class="ln"></span><span class="cl">  })</span>
+<span class="ln"></span><span class="cl">  ⋯</span>
+<span class="ln"></span><span class="cl">}</span>
+</code></pre><figcaption><span class="label">Listing 1:</span> The same hook as a function.</figcaption></figure>
+<p>We provide narrow, strict typings for <code>on</code>, <code>$</code>, <code>e</code>, etc. The literal type of the provided hook type e.g. <code>"tool.call"</code> narrows the callback appropriately. We as well offer a matcher between the event and the hook for convenience (<a class="secref" href="#matchers">§6.1</a>), based on a general substructural pattern-matcher.</p>
+<h3 id="anatomy"><span class="num">1.1</span> Anatomy</h3>
+<p>We call this file a plugin’s <em>hooks-module</em>. It exports one function, <code>register(on, options)</code>, which registers the plugin’s hooks such that we know the events a plugin hooks before any hook runs: <code>claude plugin validate</code> lists them. The plugin’s manifest and folder are the same; command, prompt, agent and http hooks <code>hooks.json</code> are kept running beside it. Options are sourced and configured through the extant plugin-level mechanism (i.e. <code>userConfig</code>).</p>
+<h3 id="vocabulary"><span class="num">1.2</span> Vocabulary</h3>
+<table class="tab">
+<thead><tr><th style="text-align:left">term</th><th style="text-align:left">meaning</th></tr></thead>
+<tbody>
+<tr><td style="text-align:left">plugin</td><td style="text-align:left">The discrete unit of installation, management, and discovery: a manifest and its skills, agents, MCP servers and hooks. We avoid perturbing this layer at all.</td></tr>
+<tr><td style="text-align:left">hooks-module</td><td style="text-align:left">The <code>.js</code> or <code>.ts</code> file under <code>hooks/</code> that a plugin’s <code>hooks.json</code> names in <code>modules</code>.</td></tr>
+<tr><td style="text-align:left">hook</td><td style="text-align:left">A function registered on an event. Every hook has the signature <code>($, e, next)</code>.</td></tr>
+<tr><td style="text-align:left">event</td><td style="text-align:left">An invoking of a method on <code>$</code>, such as <code>$.tool.call</code>. Hooks are registered on events; invoking this method runs the corresponding hook-stack, sans recursion (<a class="secref" href="#philosophy">§6.4</a>).</td></tr>
+<tr><td style="text-align:left"><code>$</code> / engine interface</td><td style="text-align:left">The engine interface, i.e. the set of affordances we give to plugins; Its methods are always <code>$.noun.event</code> (<code>$.tool.call</code>, <code>$.ui.log</code>); every method is a hookable event.</td></tr>
+</tbody></table>
+<h2 id="algebra"><span class="num">2.</span> Algebra</h2>
+<p>A hook is Koa-style middleware: it reifies an endomorphic continuation. Every hook has the signature <code>($, e, next) ⇒ R | Promise&lt;R&gt;</code>, where <code>R</code> is the event’s result. This leads to easy folding.</p>
+<table class="tab headerless"><tbody><tr><td class="term"><code>$</code></td><td>The <strong>engine interface</strong>: the state a hook may read and the side effects it may cause. The broad, extensible, immutable affordance surface. The world by any other name.</td></tr><tr><td class="term"><code>e</code></td><td>The <strong>event</strong>: the argument of the method on <code>$</code>, a plain immutable value; each hook receives it and passes it, possibly rewritten, to <code>next</code>. A desideratum to be made real.</td></tr><tr><td class="term"><code>next</code></td><td>The <strong>continuation</strong>: this dispatch, as the host built it for this hook. Called, it runs the next hook registered on this event and returns a promise of the result of the rest of the chain; a hook may call it once, many times, or not at all, and may optionally be asynchronous. It also carries <code>next.signal</code> and <code>next.is</code> (<a class="secref" href="#the-event-object">§3.1</a>), for advanced use-cases.</td></tr></tbody></table>
+<h3 id="order-is-nesting"><span class="num">2.1</span> Order Is Nesting</h3>
+<p>An installation of Claude Code has a sequence of plugins registered, while each plugin registers a sequence of hook callbacks. A hook registered on a given event has a registration order, which dictates composition. A sequence <code>on(X, A)</code>, <code>on(X, B)</code>, <code>on(X, C)</code> folds to <code>X = A(B(C(⊥)))</code>: plugins registered earlier sit “above” and plugins registered later “beneath” (on <code>⊥</code>, see <a class="secref" href="#the-bottom-hook">§6.2</a>).</p>
+<p>As a matter of structure, earlier registration grants a plugin more authority since it wraps more. Core plugin(s) that specify default behavior are registered last and thus control the least.</p>
+<div class="math">X = A ∘ B ∘ C ∘ core = A(B(C(core(⊥))))</div>
+<figure class="fig" id="figure-1"><img src="fold.svg" alt="Four hooks on one event. Each bar is a hook, shaded while it runs and empty while it waits on `next`."><figcaption><span class="label">Figure 1:</span> Four hooks on one event. Each bar is a hook, shaded while it runs and empty while it waits on <code>next</code>.</figcaption></figure>
+<h3 id="five-placements"><span class="num">2.2</span> Five Placements</h3>
+<p>Every callback decides where its logic runs relative to the point where the action happens; that point is the invocation of the last-registered callback, commonly a core plugin. Five forms, each on <code>tool.call</code>; some further configurations are expressible using standard promise rules.</p>
+<table class="tab">
+<thead><tr><th style="text-align:left">placement</th><th style="text-align:left">what the hook does</th><th style="text-align:left">on <code>tool.call</code></th></tr></thead>
+<tbody>
+<tr><td style="text-align:left">before</td><td style="text-align:left">Do the work, then let the rest of the chain run after.</td><td style="text-align:left"><code>$.ui.log("about to run " + e.tool); return next(e)</code></td></tr>
+<tr><td style="text-align:left">after</td><td style="text-align:left">Execute the action first, then access its result by awaiting the promise.</td><td style="text-align:left"><code>const result = await next(e); $.ui.log(e.tool + " ran"); return result</code></td></tr>
+<tr><td style="text-align:left">during</td><td style="text-align:left">Start the rest of the chain and work alongside it, via floating the below promise.</td><td style="text-align:left"><code>const pending = next(e); $.ui.log("running " + e.tool); return pending</code></td></tr>
+<tr><td style="text-align:left">instead</td><td style="text-align:left">Override everything below.</td><td style="text-align:left"><code>return { deny: "no tools allowed" }</code></td></tr>
+<tr><td style="text-align:left">modifying</td><td style="text-align:left">Forward a modified event.</td><td style="text-align:left"><code>return next({ ...e, timeout: 30 })</code></td></tr>
+</tbody></table>
+<p>One event therefore serves where command hooks needs a pre-event and a post-event, and a hook must assume that any hook above it may change its result or never call it; more importantly, this mechanism gives the affordance for more flexible structures of concurrency.</p>
+<h3 id="who-orders-the-plugins"><span class="num">2.3</span> Who Orders the Plugins</h3>
+<p>The list is ordered by plugin: the plugins an administrator put first, then the plugins in dependency order, then the plugins an administrator put last. Within one plugin, hooks keep the order in which they were registered. Prepending and appending plugins is the organization’s management strategy, and it’s itself plugin-shaped: which team gets which plugins, and which plugins may load at all, are hooks on the events that register plugins, so an allowlist or a denylist is a plugin an organization puts first (<a class="secref" href="#enterprise-management">§5</a>). Controls thus naturally arise.</p>
+<h2 id="events"><span class="num">3.</span> Events</h2>
+<h3 id="the-event-object"><span class="num">3.1</span> The Event Object</h3>
+<p>The event is the method’s argument and nothing else. <code>e</code> on <code>tool.call</code> is what <code>$.tool.call</code> was called with: the tool and its arguments, as own fields, so <code>$.tool.call(e)</code> is the same object a hook receives. Events are immutable plain values: to modify, you must pass <code>next</code> a copy with a changed field, as the <em>modifying</em> row of <a class="secref" href="#five-placements">§2.2</a> does. What the dispatch itself provides is on <code>next</code>:</p>
+<table class="tab headerless"><tbody><tr><td class="term"><code>next(e)</code></td><td>Runs the rest of the chain with <code>e</code> and resolves to the event’s final result.</td></tr><tr><td class="term"><code>next.signal</code></td><td>Tells any hook when the event is done or has been aborted: an <code>AbortSignal</code>, one per dispatch, that fires when the whole chain has returned or cancelled, so that the hook can stop any floating jobs or work.</td></tr><tr><td class="term"><code>next.is(type, e)</code></td><td>Whether this dispatch is the specified event; a type predicate, so under <code>*</code> it narrows <code>e</code> to that specific event’s argument (<a class="secref" href="#recursion">§6.3</a>). Singularly useful for <code>*</code>.</td></tr><tr><td class="term"><code>next.event</code></td><td>The name of this event, for a hook on <code>*</code> to log or switch on; <code>next.is</code> is the same fact as a type predicate, to allow for a type-narrowing on <code>next</code> itself.</td></tr><tr><td class="term"><code>next.origin</code></td><td>The plugin whose hook raised this dispatch, or <code>engine</code>; useful for logging.</td></tr></tbody></table>
+<h3 id="render-events"><span class="num">3.2</span> Render Events</h3>
+<p>Drawing is an <code>ui.render</code> event, hooked and matched like others: <code>on("ui.render", { component: "AskUserQuestion" }, ...)</code>. For remote surfaces, this can be considered a sort of SSR HoC stack.</p>
+<p>Where possible we provide JSX reconciliation:</p>
+<figure class="listing" id="listing-2"><pre class="numbered"><code class="lang-tsx"><span class="ln"></span><span class="cl">on(<span class="s">"ui.render"</span>, { component: <span class="s">"ToolUse"</span> }, <span class="k">async</span> ($, e, next) =&gt; {</span>
+<span class="ln"></span><span class="cl">  <span class="k">const</span> { Row, Badge } = $.ui.resolve(e)</span>
+<span class="ln"></span><span class="cl">  <span class="k">const</span> rendered = <span class="k">await</span> next(e)</span>
+<span class="ln"></span><span class="cl">  <span class="k">return</span> (</span>
+<span class="ln"></span><span class="cl">    &lt;Row&gt;</span>
+<span class="ln"></span><span class="cl">      {rendered}</span>
+<span class="ln"></span><span class="cl">      &lt;Badge text={<span class="s">`${e.props.output.length} chars`</span>} /&gt;</span>
+<span class="ln"></span><span class="cl">    &lt;/Row&gt;</span>
+<span class="ln"></span><span class="cl">  )</span>
+<span class="ln"></span><span class="cl">})</span>
+</code></pre><figcaption><span class="label">Listing 2:</span> A render hook wrapping the engine’s rendering of a <code>ToolUse</code>.</figcaption></figure>
+<h2 id="the-engine-interface"><span class="num">4.</span> The Engine Interface</h2>
+<h3 id="the-fold"><span class="num">4.1</span> The Fold</h3>
+<p>The engine builds <code>$</code> once, at startup, by running one more chain: <code>engine.create</code>. Its <code>⊥</code> returns the empty table; the core plugin, registered last, is the step that adds the primitives (files, network, model, terminal, permissions), and every other step adds its own nouns to what <code>next(e)</code> returned.</p>
+<h3 id="the-shape"><span class="num">4.2</span> The Shape</h3>
+<p>The same hook decides which nouns exist. An organization’s plugin is on top, so it returns last: it can let only named nouns through, or forbid additions outright by returning what the core step returned.</p>
+<h2 id="enterprise-management"><span class="num">5.</span> Enterprise Management</h2>
+<p>Managed settings say a file: an administrator specifies the plugins appended and prepended. Even inalienable user consent is representable; <a class="secref" href="#five-placements">§2.2</a>, <a class="secref" href="#render-events">§3.2</a> and <a class="secref" href="#the-shape">§4.2</a> are what it would require.</p>
+<h2 id="miscellanea"><span class="num">6.</span> Miscellanea</h2>
+<h3 id="matchers"><span class="num">6.1</span> Matchers</h3>
+<p>As a convenience, <code>on</code> takes an optional matcher between the event and the hook: a partial of <code>e</code>, matched substructurally.</p>
+<h3 id="the-bottom-hook"><span class="num">6.2</span> The Bottom Hook</h3>
+<p>Below the last callback, <code>next</code> is an immediately-throwing function of the standard signature.</p>
+<h3 id="recursion"><span class="num">6.3</span> Recursion</h3>
+<p>A hook is never re-entered while its own frame is being dispatched: the engine skips it silently, and runs every other registered hook.</p>
+<h3 id="philosophy"><span class="num">6.4</span> Philosophy</h3>
+<p><em>Rotlasst ist fell.</em> You can’t build a castle on sand, unless it’s a sand castle.</p>
+<table class="tab headerless">
+<tbody>
+<tr><td style="text-align:left"><em>Functional</em></td><td style="text-align:left">A hook is a function, an event is an immutable value, a result is a return value, and composition is nesting; <code>$</code> itself is the value of a fold.</td></tr>
+<tr><td style="text-align:left"><em>Deeply web</em></td><td style="text-align:left">Every part is lifted from the language of the web: Koa’s <code>next</code>, the DOM’s event object and <code>AbortSignal</code>, TypeScript’s declaration merging, JSX.</td></tr>
+<tr><td style="text-align:left"><em>Structural</em></td><td style="text-align:left">We set up some dominoes and scatter some legos; we hope for enduring emergence.</td></tr>
+</tbody></table>
+
+</main>
+<script type="text/markdown" id="source-md">---
+title: Function Hooks: Core Architecture
+author: Alice Poteat
+date: August 2026
+org: Anthropic
+---
+
+## A Module of Hooks
+
+Hooks live in a `hooks.json` file, today of four extant types: command, prompt, agent, and http.
+
+We put forward a fifth kind, the *function*: `hooks.json` may also name a module, a file with extension `.js`, `.ts`, `.jsx` or `.tsx` beside it in the plugin's `hooks/` directory. Functions compose, giving plugins a richer interface than commands can, fulfilling the dream of visual extensibility. A shell hook is a contract with an environment; a function hook is a contract with the engine. We hoist OS-integration and cross-surface complexity into `$` so that plugin authors can focus principally on the business and presentation logic inherent to their problem.
+
+A hook today, from the public documentation:
+
+```json nonum
+{ "hooks": {
+    "PreToolUse": [
+      { "matcher": "Bash",
+        "hooks": [ { "type": "command", "command": "./hooks/block-rm.sh" } ] } ] } }
+```
+
+The same hook-set as a function. In `hooks/hooks.json`, one new key beside any entries above:
+
+```json
+{ "modules": ["./my-hooks.ts"] }
+```
+
+In `hooks/my-hooks.ts`, one may register their hook sequence via the `on` callback registrar:
+
+```ts caption="The same hook as a function."
+export function register(on) {
+  ⋯
+  on("tool.call", ($, e, next) => {
+    if (e.tool === "Bash" && e.command == "rm -rf /")
+      return { deny: "Destructive command blocked by hook" }
+    return next(e)
+  })
+  ⋯
+}
+```
+
+We provide narrow, strict typings for `on`, `$`, `e`, etc. The literal type of the provided hook type e.g. `"tool.call"` narrows the callback appropriately. We as well offer a matcher between the event and the hook for convenience (§6.1), based on a general substructural pattern-matcher.
+
+### Anatomy
+
+We call this file a plugin's *hooks-module*. It exports one function, `register(on, options)`, which registers the plugin's hooks such that we know the events a plugin hooks before any hook runs: `claude plugin validate` lists them. The plugin's manifest and folder are the same; command, prompt, agent and http hooks `hooks.json` are kept running beside it. Options are sourced and configured through the extant plugin-level mechanism (i.e. `userConfig`).
+
+### Vocabulary
+
+| term | meaning |
+|---|---|
+| plugin | The discrete unit of installation, management, and discovery: a manifest and its skills, agents, MCP servers and hooks. We avoid perturbing this layer at all. |
+| hooks-module | The `.js` or `.ts` file under `hooks/` that a plugin's `hooks.json` names in `modules`. |
+| hook | A function registered on an event. Every hook has the signature `($, e, next)`. |
+| event | An invoking of a method on `$`, such as `$.tool.call`. Hooks are registered on events; invoking this method runs the corresponding hook-stack, sans recursion (§6.4). |
+| `$` / engine interface | The engine interface, i.e. the set of affordances we give to plugins; Its methods are always `$.noun.event` (`$.tool.call`, `$.ui.log`); every method is a hookable event. |
+
+## Algebra
+
+A hook is Koa-style middleware: it reifies an endomorphic continuation. Every hook has the signature `($, e, next) ⇒ R | Promise<R>`, where `R` is the event's result. This leads to easy folding.
+
+`$`
+: The **engine interface**: the state a hook may read and the side effects it may cause. The broad, extensible, immutable affordance surface. The world by any other name.
+
+`e`
+: The **event**: the argument of the method on `$`, a plain immutable value; each hook receives it and passes it, possibly rewritten, to `next`. A desideratum to be made real.
+
+`next`
+: The **continuation**: this dispatch, as the host built it for this hook. Called, it runs the next hook registered on this event and returns a promise of the result of the rest of the chain; a hook may call it once, many times, or not at all, and may optionally be asynchronous. It also carries `next.signal` and `next.is` (§3.1), for advanced use-cases.
+
+### Order Is Nesting
+
+An installation of Claude Code has a sequence of plugins registered, while each plugin registers a sequence of hook callbacks. A hook registered on a given event has a registration order, which dictates composition. A sequence `on(X, A)`, `on(X, B)`, `on(X, C)` folds to `X = A(B(C(⊥)))`: plugins registered earlier sit "above" and plugins registered later "beneath" (on `⊥`, see §6.2).
+
+As a matter of structure, earlier registration grants a plugin more authority since it wraps more. Core plugin(s) that specify default behavior are registered last and thus control the least.
+
+$$
+X = A ∘ B ∘ C ∘ core = A(B(C(core(⊥))))
+$$
+
+![Four hooks on one event. Each bar is a hook, shaded while it runs and empty while it waits on `next`.](fold.svg)
+
+### Five Placements
+
+Every callback decides where its logic runs relative to the point where the action happens; that point is the invocation of the last-registered callback, commonly a core plugin. Five forms, each on `tool.call`; some further configurations are expressible using standard promise rules.
+
+| placement | what the hook does | on `tool.call` |
+|---|---|---|
+| before | Do the work, then let the rest of the chain run after. | `$.ui.log("about to run " + e.tool); return next(e)` |
+| after | Execute the action first, then access its result by awaiting the promise. | `const result = await next(e); $.ui.log(e.tool + " ran"); return result` |
+| during | Start the rest of the chain and work alongside it, via floating the below promise. | `const pending = next(e); $.ui.log("running " + e.tool); return pending` |
+| instead | Override everything below. | `return { deny: "no tools allowed" }` |
+| modifying | Forward a modified event. | `return next({ ...e, timeout: 30 })` |
+
+One event therefore serves where command hooks needs a pre-event and a post-event, and a hook must assume that any hook above it may change its result or never call it; more importantly, this mechanism gives the affordance for more flexible structures of concurrency.
+
+### Who Orders the Plugins
+
+The list is ordered by plugin: the plugins an administrator put first, then the plugins in dependency order, then the plugins an administrator put last. Within one plugin, hooks keep the order in which they were registered. Prepending and appending plugins is the organization's management strategy, and it's itself plugin-shaped: which team gets which plugins, and which plugins may load at all, are hooks on the events that register plugins, so an allowlist or a denylist is a plugin an organization puts first (§5). Controls thus naturally arise.
+
+## Events
+
+### The Event Object
+
+The event is the method's argument and nothing else. `e` on `tool.call` is what `$.tool.call` was called with: the tool and its arguments, as own fields, so `$.tool.call(e)` is the same object a hook receives. Events are immutable plain values: to modify, you must pass `next` a copy with a changed field, as the *modifying* row of §2.2 does. What the dispatch itself provides is on `next`:
+
+`next(e)`
+: Runs the rest of the chain with `e` and resolves to the event's final result.
+
+`next.signal`
+: Tells any hook when the event is done or has been aborted: an `AbortSignal`, one per dispatch, that fires when the whole chain has returned or cancelled, so that the hook can stop any floating jobs or work.
+
+`next.is(type, e)`
+: Whether this dispatch is the specified event; a type predicate, so under `*` it narrows `e` to that specific event's argument (§6.3). Singularly useful for `*`.
+
+`next.event`
+: The name of this event, for a hook on `*` to log or switch on; `next.is` is the same fact as a type predicate, to allow for a type-narrowing on `next` itself.
+
+`next.origin`
+: The plugin whose hook raised this dispatch, or `engine`; useful for logging.
+
+### Render Events
+
+Drawing is an `ui.render` event, hooked and matched like others: `on("ui.render", { component: "AskUserQuestion" }, ...)`. For remote surfaces, this can be considered a sort of SSR HoC stack.
+
+Where possible we provide JSX reconciliation:
+
+```tsx caption="A render hook wrapping the engine's rendering of a `ToolUse`."
+on("ui.render", { component: "ToolUse" }, async ($, e, next) => {
+  const { Row, Badge } = $.ui.resolve(e)
+  const rendered = await next(e)
+  return (
+    <Row>
+      {rendered}
+      <Badge text={`${e.props.output.length} chars`} />
+    </Row>
+  )
+})
+```
+
+## The Engine Interface
+
+### The Fold
+
+The engine builds `$` once, at startup, by running one more chain: `engine.create`. Its `⊥` returns the empty table; the core plugin, registered last, is the step that adds the primitives (files, network, model, terminal, permissions), and every other step adds its own nouns to what `next(e)` returned.
+
+### The Shape
+
+The same hook decides which nouns exist. An organization's plugin is on top, so it returns last: it can let only named nouns through, or forbid additions outright by returning what the core step returned.
+
+## Enterprise Management
+
+Managed settings say a file: an administrator specifies the plugins appended and prepended. Even inalienable user consent is representable; §2.2, §3.2 and §4.2 are what it would require.
+
+## Miscellanea
+
+### Matchers
+
+As a convenience, `on` takes an optional matcher between the event and the hook: a partial of `e`, matched substructurally.
+
+### The Bottom Hook
+
+Below the last callback, `next` is an immediately-throwing function of the standard signature.
+
+### Recursion
+
+A hook is never re-entered while its own frame is being dispatched: the engine skips it silently, and runs every other registered hook.
+
+### Philosophy
+
+*Rotlasst ist fell.* You can't build a castle on sand, unless it's a sand castle.
+
+| | |
+|---|---|
+| *Functional* | A hook is a function, an event is an immutable value, a result is a return value, and composition is nesting; `$` itself is the value of a fold. |
+| *Deeply web* | Every part is lifted from the language of the web: Koa's `next`, the DOM's event object and `AbortSignal`, TypeScript's declaration merging, JSX. |
+| *Structural* | We set up some dominoes and scatter some legos; we hope for enduring emergence. |
+</script>
+<script>(function(){
+var h=document.documentElement,b=document.querySelector('.theme-toggle'),k='monograph-theme';
+var saved=null;try{saved=localStorage.getItem(k)}catch(e){}
+if(saved==='light'||saved==='dark')h.setAttribute('data-theme',saved);
+function cur(){var t=h.getAttribute('data-theme');if(t)return t;return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+function label(){b.textContent=cur()==='dark'?'light':'dark'}
+b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem(k,n)}catch(e){}label()});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',label);label();
+})();</script>
+</body>
+</html>
