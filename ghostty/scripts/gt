@@ -1,0 +1,128 @@
+#!/bin/bash
+# gt - Ghostty Terminal workspace launcher
+#
+# Usage:
+#   gt <name> [layout]      — open a project from ~/work/projects/
+#   gt <path> [layout]      — open any path as a project
+#   gt broadcast "cmd"      — run a command in all terminals
+#   gt find <dir-substring> — focus the terminal whose cwd contains that string
+#   gt list                 — list all open terminals and their directories
+#   gt projects             — list available projects
+#
+# Layouts: simple (default), fullstack, monitor
+
+SCRIPTS_DIR="$(dirname "$(realpath "$0")")"
+PROJECTS_DIR="$HOME/work/projects"
+
+case "$1" in
+    # --- Broadcast a command to all terminals ---
+    broadcast|bc)
+        shift
+        CMD="$*"
+        osascript -e "
+            tell application id \"com.mitchellh.ghostty\"
+                set allTerms to terminals
+                repeat with t in allTerms
+                    input text \"$CMD\" to t
+                    send key \"enter\" to t
+                end repeat
+            end tell"
+        echo "📡 Broadcast '$CMD' to all terminals"
+        ;;
+
+    # --- Find & focus terminal by directory ---
+    find|f)
+        osascript -e "
+            tell application id \"com.mitchellh.ghostty\"
+                set allTerms to terminals
+                repeat with t in allTerms
+                    if working directory of t contains \"$2\" then
+                        focus t
+                        return \"Focused: \" & working directory of t
+                    end if
+                end repeat
+                return \"No terminal found with directory containing '$2'\"
+            end tell"
+        ;;
+
+    # --- List all terminals ---
+    list|ls)
+        osascript -e '
+            tell application id "com.mitchellh.ghostty"
+                set allTerms to terminals
+                set output to ""
+                set i to 1
+                repeat with t in allTerms
+                    set output to output & i & ". " & name of t & "  →  " & working directory of t & linefeed
+                    set i to i + 1
+                end repeat
+                return output
+            end tell'
+        ;;
+
+    # --- List available projects ---
+    projects|p)
+        echo "📂 Projects in $PROJECTS_DIR:"
+        echo ""
+        for dir in "$PROJECTS_DIR"/*/; do
+            name=$(basename "$dir")
+            types=""
+            [ -f "$dir/package.json" ] && types="$types 📦node"
+            [ -f "$dir/Cargo.toml" ] && types="$types 🦀rust"
+            [ -f "$dir/Package.swift" ] && types="$types 🍎swift"
+            [ -f "$dir/go.mod" ] && types="$types 🐹go"
+            [ -f "$dir/pyproject.toml" ] && types="$types 🐍python"
+            printf "  %-30s %s\n" "$name" "$types"
+        done
+        ;;
+
+    # --- Help ---
+    -h|--help|help)
+        echo "gt - Ghostty Terminal workspace launcher"
+        echo ""
+        echo "Usage:"
+        echo "  gt <name> [layout]       Open project from ~/work/projects/"
+        echo "  gt <path> [layout]       Open any directory as project"
+        echo "  gt broadcast <cmd>       Run command in all terminals"
+        echo "  gt find <string>         Focus terminal by directory"
+        echo "  gt list                  List open terminals"
+        echo "  gt projects              List available projects"
+        echo ""
+        echo "Layouts: simple (default), fullstack, monitor"
+        ;;
+
+    # --- Open a project ---
+    *)
+        if [ -z "$1" ]; then
+            # No args — show interactive picker with fzf if available
+            if command -v fzf &>/dev/null; then
+                PICK=$(ls "$PROJECTS_DIR" | fzf --prompt="Project: ")
+                [ -z "$PICK" ] && exit 0
+                PROJECT_PATH="$PROJECTS_DIR/$PICK"
+            else
+                echo "Usage: gt <name> [layout]  — run 'gt help' for more"
+                exit 1
+            fi
+        elif [ -d "$PROJECTS_DIR/$1" ]; then
+            # It's a project name
+            PROJECT_PATH="$PROJECTS_DIR/$1"
+        elif [ -d "$1" ]; then
+            # It's a full path
+            PROJECT_PATH="$1"
+        else
+            # Fuzzy match project name
+            MATCH=$(ls "$PROJECTS_DIR" | grep -i "$1" | head -1)
+            if [ -n "$MATCH" ]; then
+                PROJECT_PATH="$PROJECTS_DIR/$MATCH"
+                echo "Matched: $MATCH"
+            else
+                echo "❌ Project '$1' not found in $PROJECTS_DIR"
+                exit 1
+            fi
+        fi
+
+        LAYOUT="${2:-simple}"
+        echo "🚀 Opening $(basename "$PROJECT_PATH") ($LAYOUT layout)"
+        osascript "$SCRIPTS_DIR/project.applescript" "$PROJECT_PATH" "$LAYOUT"
+        ;;
+esac

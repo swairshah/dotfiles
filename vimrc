@@ -36,7 +36,6 @@ Plug 'tpope/vim-repeat'
 Plug 'guns/vim-sexp'
 Plug 'tpope/vim-sexp-mappings-for-regular-people'
 
- Plug 'neoclide/coc.nvim', {'branch': 'relase'}
 
 " Colour parenthesis based on their nesting level.
 Plug 'HiPhish/guile.vim'
@@ -147,7 +146,7 @@ set pastetoggle=<F2>
 highlight Normal ctermbg=NONE
 highlight nonText ctermbg=NONE
 "colorscheme lucius
-colorscheme anderson
+"colorscheme anderson
 
 "insert tab char in whitespace-only lines, complete otherwise
 inoremap <Tab> <C-R>=SmartTab()<CR>

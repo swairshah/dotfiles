@@ -20,6 +20,7 @@ import {
 import type {
   PluginSidebarProject,
   PluginSidebarThread,
+  PluginSidebarThreadActions,
   PluginThreadListProps,
 } from "@get-bb/plugin-sdk/app";
 import { toast } from "sonner";
@@ -55,10 +56,17 @@ interface RecentThreadEntry {
   activityAt: number;
 }
 
+interface CollapseAllState {
+  minimized: boolean;
+  snapshot: string[] | null;
+}
+
 const MENU_ITEM_CLASS =
   "flex cursor-default select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none focus:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50";
 const COLLAPSED_PROJECTS_KEY =
   "bb-plugin-thread-hover-status:collapsed-projects";
+const COLLAPSE_ALL_STATE_KEY =
+  "bb-plugin-thread-hover-status:collapse-all-state";
 const PROCESSING_LEASES_KEY =
   "bb-plugin-thread-hover-status:processing-leases";
 const SUMMARY_CACHE_MS = 15_000;
@@ -154,6 +162,44 @@ function formatCompactCount(value: number): string {
     return `${(value / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
   }
   return `${Math.round(value / 1_000)}k`;
+}
+
+function openNewProjectDialog(
+  actions: PluginSidebarThreadActions,
+  onNavigate: () => void,
+): void {
+  actions.openNewThread();
+  onNavigate();
+
+  const deadline = Date.now() + 4_000;
+  let openedTrigger: HTMLButtonElement | null = null;
+  const timer = window.setInterval(() => {
+    if (openedTrigger === null || !openedTrigger.isConnected) {
+      const trigger = document.querySelector<HTMLButtonElement>(
+        "[data-promptbox-project-control]:not([disabled])",
+      );
+      if (trigger !== null) {
+        trigger.click();
+        openedTrigger = trigger;
+      }
+    }
+
+    const item = Array.from(
+      document.querySelectorAll<HTMLElement>("[cmdk-item]"),
+    ).find((candidate) =>
+        candidate.dataset.value === "new-project" ||
+        candidate.textContent?.trim() === "New project",
+    );
+    if (item !== undefined) {
+      window.clearInterval(timer);
+      item.click();
+      return;
+    }
+    if (Date.now() >= deadline) {
+      window.clearInterval(timer);
+      toast.error("Could not open the new project dialog.");
+    }
+  }, 50);
 }
 
 function ThreadIndicator({
@@ -1001,6 +1047,8 @@ function ThreadList({
   const [collapsedProjects, setCollapsedProjects] = useState<Set<string> | null>(
     readCollapsedProjects,
   );
+  const [collapseAllState, setCollapseAllState] =
+    useState<CollapseAllState>(readCollapseAllState);
   const [onlyActiveProjects, setOnlyActiveProjects] = useState(false);
   const now = nowMinute * 60_000;
 
@@ -1098,6 +1146,10 @@ function ThreadList({
 
   useEffect(() => {
     if (status !== "ready" || collapsedProjects !== null) return;
+    if (collapseAllState.minimized) {
+      setCollapsedProjects(new Set(projects.map((project) => project.id)));
+      return;
+    }
     setCollapsedProjects(
       new Set(
         projects
@@ -1105,10 +1157,16 @@ function ThreadList({
           .map((project) => project.id),
       ),
     );
-  }, [collapsedProjects, projectToReveal, projects, status]);
+  }, [
+    collapseAllState.minimized,
+    collapsedProjects,
+    projectToReveal,
+    projects,
+    status,
+  ]);
 
   useEffect(() => {
-    if (projectToReveal === undefined) return;
+    if (projectToReveal === undefined || collapseAllState.minimized) return;
     setCollapsedProjects((current) => {
       const next = new Set(current ?? []);
       next.delete(projectToReveal);
@@ -1117,15 +1175,28 @@ function ThreadList({
   }, [projectToReveal]);
 
   useEffect(() => {
+    if (!collapseAllState.minimized || status !== "ready") return;
+    setCollapsedProjects((current) => {
+      const next = new Set(current ?? []);
+      for (const project of projects) next.add(project.id);
+      return next;
+    });
+  }, [collapseAllState.minimized, projects, status]);
+
+  useEffect(() => {
     if (collapsedProjects !== null) {
       writeJsonStorage(COLLAPSED_PROJECTS_KEY, [...collapsedProjects]);
     }
   }, [collapsedProjects]);
 
+  useEffect(() => {
+    writeJsonStorage(COLLAPSE_ALL_STATE_KEY, collapseAllState);
+  }, [collapseAllState]);
+
   const displayedGroups = onlyActiveProjects
     ? groups.filter((group) =>
         group.rows.some(
-          ({ thread }) => isActiveThread(thread) || thread.isUnread,
+          ({ thread }) => recentThreadIds.has(thread.id) || thread.isUnread,
         ),
       )
     : groups;
@@ -1137,6 +1208,25 @@ function ThreadList({
       else next.add(projectId);
       return next;
     });
+    setCollapseAllState((current) =>
+      current.minimized
+        ? { minimized: false, snapshot: null }
+        : current,
+    );
+  };
+
+  const toggleAllProjects = () => {
+    if (collapseAllState.minimized) {
+      setCollapsedProjects(new Set(collapseAllState.snapshot ?? []));
+      setCollapseAllState({ minimized: false, snapshot: null });
+      return;
+    }
+
+    setCollapseAllState({
+      minimized: true,
+      snapshot: [...(collapsedProjects ?? [])],
+    });
+    setCollapsedProjects(new Set(projects.map((project) => project.id)));
   };
 
   if (status === "loading") {
@@ -1174,24 +1264,49 @@ function ThreadList({
           </h2>
           <button
             type="button"
+            title="Filter projects"
             className={cn(
               "grid size-5 place-items-center rounded text-muted-foreground outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring",
               onlyActiveProjects && "bg-sidebar-accent text-foreground",
             )}
-            aria-label="Show only projects with active or unread threads"
+            aria-label="Show only projects with recent, active, or unread threads"
             aria-pressed={onlyActiveProjects}
             onClick={() => setOnlyActiveProjects((current) => !current)}
           >
-            <Icon name="SlidersHorizontal" className="size-3" aria-hidden />
+            <Icon name="Filter" className="size-3" aria-hidden />
           </button>
           <button
             type="button"
+            title={
+              collapseAllState.minimized
+                ? "Restore project expansion"
+                : "Collapse all projects"
+            }
+            className={cn(
+              "grid size-5 place-items-center rounded text-muted-foreground outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring",
+              collapseAllState.minimized &&
+                "bg-sidebar-accent text-foreground",
+            )}
+            aria-label={
+              collapseAllState.minimized
+                ? "Restore project expansion"
+                : "Collapse all projects"
+            }
+            aria-pressed={collapseAllState.minimized}
+            onClick={toggleAllProjects}
+          >
+            <Icon
+              name={collapseAllState.minimized ? "ChevronsDown" : "ChevronsUp"}
+              className="size-3"
+              aria-hidden
+            />
+          </button>
+          <button
+            type="button"
+            title="New project"
             className="grid size-5 place-items-center rounded text-muted-foreground outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring"
-            aria-label="Start a project thread"
-            onClick={() => {
-              actions.openNewThread({ focusPrompt: true });
-              onNavigate();
-            }}
+            aria-label="New project"
+            onClick={() => openNewProjectDialog(actions, onNavigate)}
           >
             <Icon name="FolderPlus" className="size-3" aria-hidden />
           </button>
@@ -1242,6 +1357,32 @@ function readCollapsedProjects(): Set<string> | null {
     return new Set(parsed);
   } catch {
     return null;
+  }
+}
+
+function readCollapseAllState(): CollapseAllState {
+  try {
+    const raw = localStorage.getItem(COLLAPSE_ALL_STATE_KEY);
+    if (raw === null) return { minimized: false, snapshot: null };
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      parsed === null ||
+      typeof parsed !== "object" ||
+      !("minimized" in parsed) ||
+      typeof parsed.minimized !== "boolean" ||
+      !("snapshot" in parsed) ||
+      (parsed.snapshot !== null &&
+        (!Array.isArray(parsed.snapshot) ||
+          !parsed.snapshot.every((value) => typeof value === "string")))
+    ) {
+      return { minimized: false, snapshot: null };
+    }
+    return {
+      minimized: parsed.minimized,
+      snapshot: parsed.snapshot,
+    };
+  } catch {
+    return { minimized: false, snapshot: null };
   }
 }
 

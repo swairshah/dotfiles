@@ -73,6 +73,20 @@ vim.keymap.set("n", "<leader>ts", function()
 	vim.cmd("setlocal noswapfile")
 end, { noremap = true, silent = true, desc = "Run typescript file" })
 
+-- execute typescript project with npm/node
+vim.keymap.set("n", "<leader>tn", function()
+	vim.cmd("write")
+	local output = vim.fn.systemlist("npm start")
+	vim.cmd("botright 10new") -- Open a new window at the bottom with 10 lines height
+	vim.api.nvim_buf_set_lines(0, 0, -1, false, output)
+	vim.cmd("setlocal buftype=nofile")
+	vim.cmd("setlocal bufhidden=hide")
+	vim.cmd("setlocal noswapfile")
+end, { noremap = true, silent = true, desc = "Run npm start" })
+
+-- LLM keybinding
+vim.keymap.set("n", "<leader>ai", ":LLMAppHandler Ask<CR>", { noremap = true, silent = true, desc = "LLM Ask" })
+
 vim.cmd([[ 
 augroup typescript_settings
     autocmd!

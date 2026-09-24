@@ -15,7 +15,7 @@ export const PROJECT_ICON_PROVIDER_OPTIONS = [
   "Pi with automatic fallback",
   "Project default",
 ] as const;
-export const DEFAULT_PROJECT_ICON_PROVIDER = "Pi with automatic fallback";
+export const DEFAULT_PROJECT_ICON_PROVIDER = "Project default";
 export const DEFAULT_PROJECT_ICON_MODEL = "openai-codex/gpt-5.4-mini";
 export const DEFAULT_PROJECT_ICON_STYLE =
   "Minimal black-and-white retro line art on a white background. Use bold black outlines, simple geometric shapes, no color, no gradients, no text, and very little detail.";

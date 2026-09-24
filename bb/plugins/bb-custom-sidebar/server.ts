@@ -12,8 +12,8 @@ import {
 
 const MESSAGE_PREVIEW_MAX_CHARS = 180;
 const PROJECT_ICON_CHANNEL = "project-icon-updated";
-const PROJECT_ICON_CACHE_VERSION = 4;
-const LEGACY_PROJECT_ICON_CACHE_VERSION = 3;
+const PROJECT_ICON_CACHE_VERSION = 5;
+const LEGACY_PROJECT_ICON_CACHE_VERSION = 4;
 const PROJECT_ICON_REFRESH_MS = 30 * 24 * 60 * 60_000;
 const PROJECT_ICON_ERROR_RETRY_MS = 60 * 60_000;
 const PROJECT_ICON_MAX_BYTES = 96 * 1024;
@@ -266,14 +266,14 @@ export default async function plugin(bb: BbPluginApi) {
       type: "boolean",
       label: "Automatic project icons",
       description:
-        "Use a hidden Pi worker to find a favicon or create an SVG from the README.",
+        "Use a hidden project agent to find a favicon or create an SVG from the README.",
       default: true,
     },
     projectIconProvider: {
       type: "select",
       label: "Project icon provider",
       description:
-        "Prefer Pi with a safe fallback, or always use each project's default provider.",
+        "Use each project's default provider, or prefer Pi with a runtime fallback.",
       options: [...PROJECT_ICON_PROVIDER_OPTIONS],
       default: DEFAULT_PROJECT_ICON_PROVIDER,
     },
@@ -311,11 +311,7 @@ export default async function plugin(bb: BbPluginApi) {
       projectIconCacheKey(projectId, LEGACY_PROJECT_ICON_CACHE_VERSION),
     );
     const parsedLegacy = storedProjectIconSchema.safeParse(legacy);
-    if (
-      parsedLegacy.success &&
-      parsedLegacy.data.status === "ready" &&
-      parsedLegacy.data.source !== "generated"
-    ) {
+    if (parsedLegacy.success && parsedLegacy.data.status === "ready") {
       await bb.storage.kv.set(projectIconCacheKey(projectId), parsedLegacy.data);
       return parsedLegacy.data;
     }
@@ -385,7 +381,7 @@ export default async function plugin(bb: BbPluginApi) {
     projectId: string;
     projectName: string;
     prompt: string;
-    providerMode: string;
+    usePi: boolean;
     piModel: string;
   }) {
     const common = {
@@ -398,22 +394,13 @@ export default async function plugin(bb: BbPluginApi) {
       visibility: "hidden" as const,
     };
 
-    if (args.providerMode === "Pi with automatic fallback") {
-      try {
-        return await bb.sdk.threads.spawn({
+    return args.usePi
+      ? bb.sdk.threads.spawn({
           ...common,
           providerId: "pi",
           model: args.piModel,
-        });
-      } catch (piError) {
-        bb.log.info(
-          `Pi icon worker unavailable; using the project default provider: ${
-            piError instanceof Error ? piError.message : "Unknown error"
-          }`,
-        );
-      }
-    }
-    return bb.sdk.threads.spawn(common);
+        })
+      : bb.sdk.threads.spawn(common);
   }
 
   bb.agents.registerTool({
@@ -464,8 +451,7 @@ export default async function plugin(bb: BbPluginApi) {
   async function runIconWorker(projectId: string): Promise<void> {
     if (disposeController.signal.aborted) return;
     const previous = await readStoredIcon(projectId);
-    let workerThreadId: string | null = null;
-    let completed = false;
+    const workerThreadIds: string[] = [];
 
     try {
       const settings = await settingsHandle.get();
@@ -476,22 +462,45 @@ export default async function plugin(bb: BbPluginApi) {
         return;
       }
       const project = await bb.sdk.projects.get({ projectId });
-      const worker = await spawnProjectIconThread({
-        projectId,
-        projectName: project.name,
-        prompt: projectIconPrompt(settings.projectIconStyle),
-        providerMode: settings.projectIconProvider,
-        piModel: settings.projectIconModel,
-      });
-      workerThreadId = worker.id;
-      await bb.sdk.threads.wait({
-        threadId: worker.id,
-        status: "idle",
-        timeoutMs: 3 * 60_000,
-        signal: disposeController.signal,
-      });
-      const result = await bb.sdk.threads.output({ threadId: worker.id });
-      const choice = parseIconAgentResult(result.output ?? "");
+      const prompt = projectIconPrompt(settings.projectIconStyle);
+      const runAttempt = async (usePi: boolean) => {
+        const candidate = await spawnProjectIconThread({
+          projectId,
+          projectName: project.name,
+          prompt,
+          usePi,
+          piModel: settings.projectIconModel,
+        });
+        workerThreadIds.push(candidate.id);
+        await bb.sdk.threads.wait({
+          threadId: candidate.id,
+          status: "idle",
+          timeoutMs: 3 * 60_000,
+          signal: disposeController.signal,
+        });
+        const result = await bb.sdk.threads.output({ threadId: candidate.id });
+        return {
+          worker: candidate,
+          choice: parseIconAgentResult(result.output ?? ""),
+        };
+      };
+
+      let attempt;
+      if (settings.projectIconProvider === "Pi with automatic fallback") {
+        try {
+          attempt = await runAttempt(true);
+        } catch (piError) {
+          bb.log.info(
+            `Pi icon worker failed; using the project default provider: ${
+              piError instanceof Error ? piError.message : "Unknown error"
+            }`,
+          );
+          attempt = await runAttempt(false);
+        }
+      } else {
+        attempt = await runAttempt(false);
+      }
+      const { worker, choice } = attempt;
       let stored: StoredProjectIcon;
       if (choice.kind === "svg") {
         stored = generatedProjectIcon(choice.svg);
@@ -546,7 +555,6 @@ export default async function plugin(bb: BbPluginApi) {
       ) {
         await bb.storage.kv.set(projectIconCacheKey(projectId), stored);
       }
-      completed = true;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Project icon generation failed.";
@@ -559,12 +567,10 @@ export default async function plugin(bb: BbPluginApi) {
         } satisfies StoredProjectIcon);
       }
     } finally {
-      if (workerThreadId !== null) {
-        if (!completed) {
-          await bb.sdk.threads
-            .stop({ threadId: workerThreadId })
-            .catch(() => undefined);
-        }
+      for (const workerThreadId of workerThreadIds) {
+        await bb.sdk.threads
+          .stop({ threadId: workerThreadId })
+          .catch(() => undefined);
         await bb.sdk.threads
           .archive({ threadId: workerThreadId })
           .catch(() => undefined);

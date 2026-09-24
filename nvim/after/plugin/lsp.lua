@@ -23,7 +23,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
     vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
     vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-    vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
+    vim.keymap.set('n', 'gr', '<cmd>Telescope lsp_references<cr>', opts)
     vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
     vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
     vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
@@ -109,20 +109,19 @@ require('lspconfig').zls.setup {
 }
 
 -- Setup TypeScript Language Server
--- require("lspconfig").tsserver.setup {
---   on_attach = function(client, bufnr)
---     -- Key mappings (adjust as needed)
---     local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
---     local opts = { noremap=true, silent=true }
--- 
---     -- Mappings.
---     buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
---     buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
---     buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
---     buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
---     buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
--- 
---     -- Enable completion triggered by <c-x><c-o>
---     vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
---   end,
--- }
+require("lspconfig").ts_ls.setup {}
+
+-- TypeScript-specific settings
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+  callback = function()
+    local opts = { buffer = true, silent = true }
+
+    -- TypeScript/JavaScript keymaps
+    vim.keymap.set('n', '<leader>tb', ':!npx tsc %<cr>', opts) -- Build current file
+    vim.keymap.set('n', '<leader>tr', ':!node %:r.js<cr>', opts) -- Run compiled JS
+    vim.keymap.set('n', '<leader>tc', ':!npx tsc<cr>', opts) -- Build project (tsconfig.json)
+    vim.keymap.set('n', '<leader>td', ':!npx ts-node %<cr>', opts) -- Direct run with ts-node
+    vim.keymap.set('n', '<leader>tw', ':!npx tsc --watch<cr>', opts) -- Watch mode
+  end,
+})

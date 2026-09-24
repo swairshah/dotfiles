@@ -77,10 +77,9 @@ alias 'py=python'
 #rails
 alias 'netcat=nc'
 
-
-function say {
-	echo $@ | festival --tts
-}
+#function say {
+#	echo $@ | festival --tts
+#}
 
 alias 'you=youtube-dl -t'
 alias 'zsh=zsh -l'
@@ -96,7 +95,10 @@ alias 'nepomukcmd=sopranocmd --dbus org.kde.nepomuk.services.nepomukstorage  --m
 # Set prompt (white and purple, nothing too fancy)
 # PS1=$'%{\e[0;37m%}%B%*%b %{\e[0;40m%}%m:%{\e[0;40m%}%~ %(!.#.>) %{\e[00m%}'
 #PS1=$'% %{\e[1;31m%}%m:%{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
-PS1=$'% %{\e[1;31m%}macbook %{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
+#PS1=$'% %{\e[1;31m%}macbook %{\e[0;36m%}%~ %(!.#.>) %{\e[00m%}'
+
+#green:
+PS1=$'% %{\e[1;31m%}macbook %{\e[0;39m%}%~ %(!.#.>) %{\e[00m%}'
 
 # Set less options
 if [[ -x $(which less) ]]
@@ -178,7 +180,6 @@ alias 'lrta=ls -lrtA'
 alias 'kw=kwrite'
 alias 'tf=tail -f'
 alias 'grep=grep --colour'
-alias 'e=emacs -nw --quick'
 alias 'vnice=nice -n 20 ionice -c 3'
 alias 'get_iplayer=get_iplayer --nopurge'
 alias "tree=tree -A -I 'CVS|*~'"
@@ -273,30 +274,30 @@ chpwd() {
 }
 
 # For changing the umask automatically
-chpwd () {
-    case $PWD in
-        $HOME/[Dd]ocuments*)
-            if [[ $(umask) -ne 077 ]]; then
-                umask 0077
-                echo -e "\033[01;32mumask: private \033[m"
-            fi;;
-        */[Ww]eb*)
-            if [[ $(umask) -ne 072 ]]; then
-                umask 0072
-                echo -e "\033[01;33mumask: other readable \033[m"
-            fi;;
-        /vol/nothing)
-            if [[ $(umask) -ne 002 ]]; then
-                umask 0002
-                echo -e "\033[01;35mumask: group writable \033[m"
-            fi;;
-        *)
-            if [[ $(umask) -ne 022 ]]; then
-                umask 0022
-                echo -e "\033[01;31mumask: world readable \033[m"
-            fi;;
-    esac
-}
+#chpwd () {
+#    case $PWD in
+#        $HOME/[Dd]ocuments*)
+#            if [[ $(umask) -ne 077 ]]; then
+#                umask 0077
+#                echo -e "\033[01;32mumask: private \033[m"
+#            fi;;
+#        */[Ww]eb*)
+#            if [[ $(umask) -ne 072 ]]; then
+#                umask 0072
+#                echo -e "\033[01;33mumask: other readable \033[m"
+#            fi;;
+#        /vol/nothing)
+#            if [[ $(umask) -ne 002 ]]; then
+#                umask 0002
+#                echo -e "\033[01;35mumask: group writable \033[m"
+#            fi;;
+#        *)
+#            if [[ $(umask) -ne 022 ]]; then
+#                umask 0022
+#                echo -e "\033[01;31mumask: world readable \033[m"
+#            fi;;
+#    esac
+#}
 cd . &> /dev/null
 
 # For quickly plotting data with gnuplot.  Arguments are files for 'plot "<file>" with lines'.
@@ -343,11 +344,11 @@ jrotate-r () {
 export MYSQL_PS1="\R:\m:\s \h> "
 
 # Print some stuff
-date
-if [[ -x `which fortune` ]]; then
-    echo
-    fortune -a 2> /dev/null
-fi
+#date
+#if [[ -x `which fortune` ]]; then
+#    echo
+#    fortune -a 2> /dev/null
+#fi
 
 # The following lines were added by compinstall
 zstyle ':completion:*' completer _expand _complete _match
@@ -553,14 +554,17 @@ path=('/Users/swair/.juliaup/bin' $path)
 export PATH
 
 alias "vim=nvim"
+alias "v=nvim"
 
 # <<< juliaup initialize <<<
 #
 
 export JAVA_HOME=/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
 
+set -a
 source ~/.env
-fortune
+set +a
+# fortune
 
 
 # bun completions
@@ -570,4 +574,155 @@ fortune
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+source ~/base/bin/activate
 
+
+# Function to log commands with tmux pane info
+log_command() {
+    if [[ -n "$TMUX" ]]; then
+        local pane_id=$(tmux display-message -p '#{pane_id}')
+        local session_name=$(tmux display-message -p '#{session_name}')
+        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "[$timestamp] [$session_name:$pane_id] $1" >> ~/.tmux_history.log
+    fi
+}
+
+# Hook before each command execution
+preexec() {
+    log_command "$1"
+}
+
+# pnpm
+export PNPM_HOME="/Users/swair/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/swair/.lmstudio/bin"
+# End of LM Studio CLI section
+
+
+alias iodine="/opt/homebrew/Cellar/iodine/0.8.0/sbin/iodine"
+
+export zai="ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic claude"
+
+alias cdx="codex --search --model=gpt-5-codex -c model_reasoning_effort="high" --sandbox workspace-write -c sandbox_workspace_write.network_access=true"
+
+ccode() {
+    /Users/swair/.nvm/versions/node/v22.16.0/bin/claude "$@" | sed -E 's/\x1b\[48;2;0;0;0m/\x1b[48;5;0m/g'
+}
+
+
+hexshow256() {
+  for hex in "$@"; do
+    h=${hex#"#"}
+    [[ $h =~ ^[0-9A-Fa-f]{6}$ ]] || { echo "skip invalid: $hex" >&2; continue; }
+    r=$((16#${h:0:2})); g=$((16#${h:2:2})); b=$((16#${h:4:2}))
+    r6=$(( (r*5 + 127) / 255 ))
+    g6=$(( (g*5 + 127) / 255 ))
+    b6=$(( (b*5 + 127) / 255 ))
+    idx=$((16 + 36*r6 + 6*g6 + b6))
+    printf '\e[48;5;%dm  \e[0m %s -> idx %3d\n' "$idx" "#$h" "$idx"
+  done
+}
+
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit
+
+# Added by Windsurf
+export PATH="/Users/swair/.codeium/windsurf/bin:$PATH"
+
+# Added by Antigravity
+export PATH="/Users/swair/.antigravity/antigravity/bin:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/swair/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/swair/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/swair/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/swair/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+. "$HOME/.turso/env"
+
+# opencode
+export PATH=/Users/swair/.opencode/bin:$PATH
+
+alias 'cl=clear'
+
+export TERM=xterm-256color
+
+# Auto-numbered zellij launcher.
+# Usage:
+#   zellij          -> attach/create dev1, dev2, dev3 ... (first free active slot)
+#   zeli            -> same behavior as above
+#   zellij <args>   -> pass through to real zellij
+zj() {
+    local -a active_sessions used_ids
+    local s id
+
+    active_sessions=("${(@f)$(command zellij list-sessions -n 2>/dev/null | awk '!/\(EXITED/{print $1}')}")
+
+    for s in "${active_sessions[@]}"; do
+        if [[ "$s" == dev<-> ]]; then
+            used_ids+=("${s#dev}")
+        fi
+    done
+
+    id=1
+    while (( ${used_ids[(Ie)$id]} > 0 )); do
+        ((id++))
+    done
+
+    command zellij attach -c "dev${id}"
+}
+
+zeli() {
+    if (( $# == 0 )); then
+        zj
+    else
+        command zellij "$@"
+    fi
+}
+
+zellij() {
+    if (( $# == 0 )); then
+        zj
+    else
+        command zellij "$@"
+    fi
+}
+
+
+# Ghostty project launcher
+export PATH="$HOME/dotfiles/ghostty/scripts:$PATH"
+
+source /Users/swair/.tempo/env
+
+export BLENDER_HOST='host.docker.internal'
+export BLENDER_PORT=9876
+
+alias c="claude --dangerously-skip-permissions --enable-auto-mode"
+
+export PATH="/Users/swair/.deno/bin:$PATH"
+
+# rote bundled runtimes (node, npm, npx, deno) — appended so nvm's node wins
+export PATH="$PATH:$HOME/.rote/bin"
+
+# rote shell integration
+[ -f ~/.rote/shell/init.sh ] && source ~/.rote/shell/init.sh
+
+# Added by Raindrop installer
+export PATH="$HOME/.raindrop/bin:$PATH"
+# End Raindrop installer
+
+# >>> open-knowledge cli >>>
+# ! Contents within this block are managed by OpenKnowledge. Do not edit.
+# ! Delete this whole block to opt out — OpenKnowledge will not re-add it.
+[ -f "$HOME/.ok/env.sh" ] && . "$HOME/.ok/env.sh"
+# <<< open-knowledge cli <<<
+
+
+export PATH="$HOME/.baml/bin:$PATH"
+export PATH="$HOME/.baml/toolchain/bin:$PATH"
